@@ -926,15 +926,15 @@
       <div class="why-item">
         <div class="why-icon">🤝</div>
         <div class="why-text">
-          <strong>Play with people worth knowing</strong>
-          <p>Network, meet clients, or just find others who actually care about the game.</p>
+          <strong>Network in the sector you want</strong>
+          <p>Play with founders, operators, investors, or creatives in your industry. Every round is a room worth being in.</p>
         </div>
       </div>
       <div class="why-item" style="transition-delay:0.1s">
-        <div class="why-icon">⭐</div>
+        <div class="why-icon">🎫</div>
         <div class="why-text">
-          <strong>Build your Happy profile</strong>
-          <p>Handicap, pace ratings, and reviews create a reputation that opens better rounds.</p>
+          <strong>Earn your Happy Tour Card</strong>
+          <p>Your handicap, pace ratings, and reviews build a reputation that gets you into better rooms — on and off the course.</p>
         </div>
       </div>
       <div class="why-item" style="transition-delay:0.2s">
@@ -965,22 +965,45 @@
     </div>
 
     <div class="form-group">
-      <label class="form-label">Full Name</label>
-      <input type="text" class="form-input" placeholder="Your name">
+      <label class="form-label">Full Name <span style="color:#E8A838">*</span></label>
+      <input id="field-name" type="text" class="form-input" placeholder="Your name" required>
     </div>
 
     <div class="form-group">
-      <label class="form-label">Phone Number</label>
-      <input type="tel" class="form-input" placeholder="+1 (212) 000-0000">
+      <label class="form-label">Phone Number <span style="color:#E8A838">*</span></label>
+      <input id="field-phone" type="tel" class="form-input" placeholder="+1 (212) 000-0000" required>
     </div>
 
     <div class="form-group">
-      <label class="form-label">Handicap Index</label>
-      <input type="number" class="form-input" placeholder="e.g. 8.4" step="0.1" min="0" max="54">
+      <label class="form-label">What do you do? <span style="color:#E8A838">*</span></label>
+      <input id="field-job" type="text" class="form-input" placeholder="e.g. Founder at XYZ, VC at ABC, Attorney, Banker..." required>
     </div>
 
     <div class="form-group">
-      <label class="form-label">Pace of Play</label>
+      <label class="form-label">Industry <span style="color:#E8A838">*</span></label>
+      <div class="select-wrap">
+        <select id="field-industry" class="form-select" required>
+          <option value="" disabled selected>Select your industry</option>
+          <option>Finance / Investing</option>
+          <option>Technology / Startups</option>
+          <option>Real Estate</option>
+          <option>Law</option>
+          <option>Media / Entertainment</option>
+          <option>Healthcare</option>
+          <option>Consulting</option>
+          <option>Sales / Business Development</option>
+          <option>Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Handicap Index <span style="color:#E8A838">*</span></label>
+      <input id="field-handicap" type="number" class="form-input" placeholder="e.g. 8.4" step="0.1" min="0" max="54" required>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Pace of Play <span style="color:#E8A838">*</span></label>
       <div class="pace-grid">
         <div>
           <input type="radio" name="pace" id="pace-fast" class="pace-option" value="fast">
@@ -1007,8 +1030,8 @@
     </div>
 
     <div class="form-group">
-      <label class="form-label">Where do you usually play?</label>
-      <input type="text" class="form-input" placeholder="e.g. Bethpage, Winged Foot, public courses in LI">
+      <label class="form-label">Where do you usually play? <span style="color:#E8A838">*</span></label>
+      <input id="field-courses" type="text" class="form-input" placeholder="e.g. Bethpage, Winged Foot, public courses in LI" required>
     </div>
 
     <button class="form-submit" onclick="handleSubmit(this)">Request Access →</button>
@@ -1044,15 +1067,53 @@
 
   document.querySelectorAll('.step, .why-item, .round-card, .form-wrap').forEach(el => observer.observe(el));
 
-  // Form submit
-  function handleSubmit(btn) {
-    btn.textContent = '✓ You\'re on the list';
-    btn.style.background = '#2E6045';
-    btn.style.cursor = 'default';
+  // Supabase config
+  const SUPABASE_URL = 'https://pjuyeldemhghpdnyiury.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_U6ZMQP6AEyXh2qc7QBhgrg_UEmyGTJJ';
+
+  async function handleSubmit(btn) {
+    const name = document.querySelector('#field-name').value.trim();
+    const phone = document.querySelector('#field-phone').value.trim();
+    const job = document.querySelector('#field-job').value.trim();
+    const industry = document.querySelector('#field-industry').value;
+    const handicap = document.querySelector('#field-handicap').value;
+    const pace = document.querySelector('input[name="pace"]:checked')?.value || '';
+    const courses = document.querySelector('#field-courses').value.trim();
+
+    if (!name || !phone || !job || !industry || !handicap || !pace || !courses) {
+      alert('All fields are required. Please complete the full application.');
+      return;
+    }
+
+    btn.textContent = 'Submitting...';
     btn.disabled = true;
-    const note = document.querySelector('.form-note');
-    note.innerHTML = "We'll be in touch soon. Welcome to Happy.<br>happy.golf";
-    note.style.color = '#2E6045';
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/waitlist`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ name, phone, job, industry, handicap: handicap || null, pace, courses })
+      });
+
+      if (res.ok) {
+        btn.textContent = "✓ You're on the list";
+        btn.style.background = '#2E6045';
+        const note = document.querySelector('.form-note');
+        note.innerHTML = "We'll be in touch soon. Welcome to Happy.<br>happy.golf";
+        note.style.color = '#2E6045';
+      } else {
+        throw new Error('Submission failed');
+      }
+    } catch (err) {
+      btn.textContent = 'Request Access →';
+      btn.disabled = false;
+      alert('Something went wrong. Please try again.');
+    }
   }
 </script>
 
