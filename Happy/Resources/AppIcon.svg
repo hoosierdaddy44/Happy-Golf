@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Dark green background with rounded corners -->
+  <rect width="1024" height="1024" fill="#1C3D2B" rx="230"/>
+
+  <!-- Subtle inner glow for depth -->
+  <rect width="1024" height="1024" fill="url(#vignette)" rx="230"/>
+
+  <defs>
+    <radialGradient id="vignette" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#2A5A3F" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#0D1F16" stop-opacity="0.3"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Italic serif H — matches Playfair Display italic style -->
+  <text
+    x="512"
+    y="710"
+    font-family="Georgia, 'Palatino Linotype', Palatino, serif"
+    font-size="780"
+    font-style="italic"
+    font-weight="normal"
+    fill="#F5F0E8"
+    text-anchor="middle"
+    opacity="0.97"
+  >h</text>
+
+  <!-- Gold underline accent -->
+  <rect x="312" y="820" width="400" height="6" fill="#E8A838" rx="3" opacity="0.85"/>
+</svg>
