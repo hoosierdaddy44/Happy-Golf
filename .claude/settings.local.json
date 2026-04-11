@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p /Users/alexschein/Desktop/Happy/Happy/App\nmkdir -p /Users/alexschein/Desktop/Happy/Happy/Features/Auth\nmkdir -p /Users/alexschein/Desktop/Happy/Happy/Features/Profile\nmkdir -p /Users/alexschein/Desktop/Happy/Happy/Features/Discovery\nmkdir -p /Users/alexschein/Desktop/Happy/Happy/Features/TeeTimes\nmkdir -p /Users/alexschein/Desktop/Happy/Happy/Features/Feed\nmkdir -p /Users/alexschein/Desktop/Happy/Happy/Core/Models\nmkdir -p /Users/alexschein/Desktop/Happy/Happy/Core/Persistence\nmkdir -p /Users/alexschein/Desktop/Happy/Happy/DesignSystem/Components\nmkdir -p /Users/alexschein/Desktop/Happy/Happy/DesignSystem/Extensions\necho \"Directories created\")",
+      "Bash(brew install:*)",
+      "Bash(which xcodegen:*)",
+      "Bash(xcodebuild \\\\\n  -project Happy.xcodeproj \\\\\n  -scheme Happy \\\\\n  -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \\\\\n  build 2>&1 | tail -30)",
+      "Bash(printf '' > /Users/alexschein/Desktop/Happy/PRD.md && ls -la /Users/alexschein/Desktop/Happy/PRD.md)"
+    ]
+  }
+}

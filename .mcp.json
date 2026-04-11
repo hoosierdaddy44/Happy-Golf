@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "ios-simulator": {
+      "command": "/Users/alexschein/.npm-global/bin/ios-simulator-mcp",
+      "type": "stdio"
+    }
+  }
+}
