@@ -40,11 +40,11 @@ struct ActivityEvent: Identifiable {
     }
 }
 
-enum ActivityType {
-    case newTeeTime
-    case requestSent
-    case approved
-    case declined
+enum ActivityType: String {
+    case newTeeTime  = "new_tee_time"
+    case requestSent = "request_sent"
+    case approved    = "request_approved"
+    case declined    = "request_declined"
 }
 
 // MARK: - Mock Data

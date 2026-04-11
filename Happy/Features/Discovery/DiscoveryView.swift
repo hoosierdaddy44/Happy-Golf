@@ -207,7 +207,8 @@ struct TeeTimeCard: View {
     DiscoveryView()
         .environmentObject({
             let s = AppState()
-            s.createProfile(name: "Alex S.", handicap: 12.0, industry: "Tech", pace: .fast, homeCourse: "Bethpage")
+            s.currentUser = User.jamesK
+            s.isOnboarded = true
             return s
         }())
 }

@@ -44,13 +44,13 @@ struct ProfileSetupView: View {
                     // Skip only on step 2
                     if step == 2 {
                         Button("Skip") {
-                            appState.createProfile(
+                            Task { await appState.createProfile(
                                 name: name,
                                 handicap: Double(handicap) ?? 0,
                                 industry: "",
                                 pace: pace,
                                 homeCourse: ""
-                            )
+                            )}
                         }
                         .font(HappyFont.bodyMedium(size: 13))
                         .foregroundColor(.happyMuted)
@@ -94,13 +94,13 @@ struct ProfileSetupView: View {
                             if step == 1 {
                                 withAnimation(.easeOut(duration: 0.3)) { step = 2 }
                             } else {
-                                appState.createProfile(
+                                Task { await appState.createProfile(
                                     name: name,
                                     handicap: Double(handicap) ?? 0,
                                     industry: industry,
                                     pace: pace,
                                     homeCourse: homeCourse
-                                )
+                                )}
                             }
                         }
                         .opacity((step == 1 && !isStep1Valid) ? 0.4 : 1)

@@ -23,6 +23,7 @@
 		7C20971FC35DE0A8BC4DAA90 /* InstrumentSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9B3CA3790A618C6FCDFE3E13 /* InstrumentSans-Medium.ttf */; };
 		7D270256F7E09F05738C5569 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E57FC986098E539A8F2C15F4 /* Assets.xcassets */; };
 		81A20BCD8DFFD398D82C2A00 /* PlayfairDisplay-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0C3BA526F1F65FEFB6D068B4 /* PlayfairDisplay-MediumItalic.ttf */; };
+		89CA3F866F2B537C333EF3F4 /* SupabaseModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23EADA1E964ABAEF02366E2A /* SupabaseModels.swift */; };
 		8EB77E4DF0050C7E962D18D9 /* EmailAuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09CF769D41082F2AC0189DC7 /* EmailAuthView.swift */; };
 		9924887E2372C3C0E08EF109 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9C5F15D2A7AAE058994C7F3 /* AppState.swift */; };
 		9A911561037C77D135BF3C64 /* PlayfairDisplay-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 43528FFA764DEE0CEAA14FD5 /* PlayfairDisplay-Medium.ttf */; };
@@ -49,6 +50,7 @@
 		0C3BA526F1F65FEFB6D068B4 /* PlayfairDisplay-MediumItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-MediumItalic.ttf"; sourceTree = "<group>"; };
 		0D7DF3302C645EF33D964932 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
 		11B99CF00341060CB28C9F67 /* JoinRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinRequest.swift; sourceTree = "<group>"; };
+		23EADA1E964ABAEF02366E2A /* SupabaseModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseModels.swift; sourceTree = "<group>"; };
 		309A0836F6682F3BC28B73F0 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
 		319B67618BC873CE3427EC11 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		33BC9BA3B10748403570D4F3 /* DevLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevLoginView.swift; sourceTree = "<group>"; };
@@ -127,6 +129,7 @@
 			children = (
 				EDC1D010FFF92BEB6466EF94 /* ActivityEvent.swift */,
 				11B99CF00341060CB28C9F67 /* JoinRequest.swift */,
+				23EADA1E964ABAEF02366E2A /* SupabaseModels.swift */,
 				D30A6B039EF68F606836270F /* TeeTime.swift */,
 				319B67618BC873CE3427EC11 /* User.swift */,
 			);
@@ -349,6 +352,7 @@
 				22F4276928BFDFEFF83074A0 /* RootView.swift in Sources */,
 				A242E803A0C5EE81C205FB6D /* SplashView.swift in Sources */,
 				D3EAE857AA1184D04E9F4788 /* SupabaseClient.swift in Sources */,
+				89CA3F866F2B537C333EF3F4 /* SupabaseModels.swift in Sources */,
 				4A989ECC81037B4C8C5AD816 /* TeeTime.swift in Sources */,
 				EE84104E3D71A1764B79DD25 /* TeeTimeDetailView.swift in Sources */,
 				63D4C6822CF51C2C087F4D81 /* User.swift in Sources */,

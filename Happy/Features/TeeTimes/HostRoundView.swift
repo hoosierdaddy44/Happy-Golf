@@ -201,7 +201,7 @@ struct HostRoundView: View {
             carryMode: carryMode,
             notes: notes.isEmpty ? nil : notes
         )
-        appState.hostTeeTime(tt)
+        Task { await appState.hostTeeTime(tt) }
         withAnimation(.easeOut(duration: 0.4)) { submitted = true }
     }
 
@@ -236,7 +236,8 @@ struct HostRoundView: View {
     HostRoundView()
         .environmentObject({
             let s = AppState()
-            s.createProfile(name: "Alex S.", handicap: 12.0, industry: "Tech", pace: .fast, homeCourse: "")
+            s.currentUser = User.jamesK
+            s.isOnboarded = true
             return s
         }())
 }

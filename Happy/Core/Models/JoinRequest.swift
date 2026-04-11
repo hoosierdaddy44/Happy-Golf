@@ -26,7 +26,7 @@ struct JoinRequest: Identifiable {
 }
 
 enum RequestStatus: String {
-    case pending  = "Pending"
-    case approved = "Approved"
-    case declined = "Declined"
+    case pending  = "pending"
+    case approved = "approved"
+    case declined = "declined"
 }

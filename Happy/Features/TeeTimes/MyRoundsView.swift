@@ -76,7 +76,7 @@ struct MyRoundsView: View {
                             .clipShape(Circle())
                     }
                     ForEach(pendingRequests) { req in
-                        JoinRequestRow(request: req)
+                        JoinRequestRowView(request: req)
                     }
                 }
                 .padding(.horizontal, HappySpacing.xl)
@@ -196,7 +196,7 @@ struct MyRoundsView: View {
 
 // MARK: - Join Request Row (host view)
 
-struct JoinRequestRow: View {
+struct JoinRequestRowView: View {
     let request: JoinRequest
     @EnvironmentObject var appState: AppState
 
@@ -233,10 +233,10 @@ struct JoinRequestRow: View {
 
                 HStack(spacing: HappySpacing.xs) {
                     HappyPrimaryButton(title: "Approve") {
-                        appState.approveRequest(request)
+                        Task { await appState.approveRequest(request) }
                     }
                     HappyOutlineButton(title: "Decline") {
-                        appState.declineRequest(request)
+                        Task { await appState.declineRequest(request) }
                     }
                 }
             }
@@ -252,7 +252,8 @@ struct JoinRequestRow: View {
     MyRoundsView()
         .environmentObject({
             let s = AppState()
-            s.createProfile(name: "Alex S.", handicap: 12.0, industry: "Tech", pace: .fast, homeCourse: "")
+            s.currentUser = User.jamesK
+            s.isOnboarded = true
             return s
         }())
 }

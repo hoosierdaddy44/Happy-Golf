@@ -27,7 +27,7 @@ struct ActivityFeedView: View {
                     ScrollView(showsIndicators: false) {
                         LazyVStack(spacing: 0) {
                             ForEach(appState.activityEvents) { event in
-                                ActivityEventRow(event: event)
+                                ActivityEventRowView(event: event)
                                 if event.id != appState.activityEvents.last?.id {
                                     HappyDivider()
                                         .padding(.leading, 68)
@@ -68,7 +68,7 @@ struct ActivityFeedView: View {
 
 // MARK: - Activity Event Row
 
-struct ActivityEventRow: View {
+struct ActivityEventRowView: View {
     let event: ActivityEvent
     @EnvironmentObject var appState: AppState
 

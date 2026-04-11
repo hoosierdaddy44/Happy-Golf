@@ -262,7 +262,7 @@ struct JoinRequestSheet: View {
 
                 VStack(spacing: HappySpacing.xs) {
                     HappyPrimaryButton(title: "Send Request →", fullWidth: true) {
-                        appState.requestToJoin(teeTime: teeTime, note: note.isEmpty ? nil : note)
+                        Task { await appState.requestToJoin(teeTime: teeTime, note: note.isEmpty ? nil : note) }
                         dismiss()
                     }
                     HappyOutlineButton(title: "Cancel", fullWidth: true) {
@@ -283,7 +283,8 @@ struct JoinRequestSheet: View {
         TeeTimeDetailView(teeTime: TeeTime.mockData[0])
             .environmentObject({
                 let s = AppState()
-                s.createProfile(name: "Alex S.", handicap: 12.0, industry: "Tech", pace: .fast, homeCourse: "")
+                s.currentUser = User.jamesK
+                s.isOnboarded = true
                 return s
             }())
     }
