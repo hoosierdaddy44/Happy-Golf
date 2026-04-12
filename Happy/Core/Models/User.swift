@@ -10,6 +10,8 @@ struct User: Identifiable, Equatable {
     var homeCourses: [String]
     var avatarColor: Color
     let joinedAt: Date
+    var rating: Double?
+    var ratingCount: Int
 
     var initials: String {
         let parts = name.split(separator: " ")
@@ -21,6 +23,11 @@ struct User: Identifiable, Equatable {
         String(format: "%.1f", handicapIndex)
     }
 
+    var ratingDisplay: String {
+        guard let r = rating else { return "—" }
+        return String(format: "%.1f", r)
+    }
+
     init(
         id: UUID = UUID(),
         name: String,
@@ -30,7 +37,9 @@ struct User: Identifiable, Equatable {
         pacePreference: PacePref = .standard,
         homeCourses: [String] = [],
         avatarColor: Color = .happyGreen,
-        joinedAt: Date = Date()
+        joinedAt: Date = Date(),
+        rating: Double? = nil,
+        ratingCount: Int = 0
     ) {
         self.id = id
         self.name = name
@@ -41,6 +50,8 @@ struct User: Identifiable, Equatable {
         self.homeCourses = homeCourses
         self.avatarColor = avatarColor
         self.joinedAt = joinedAt
+        self.rating = rating
+        self.ratingCount = ratingCount
     }
 }
 

@@ -4,7 +4,11 @@ struct ProfileView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var authManager: AuthManager
 
+    @State private var showClaimAccolade = false
+    @State private var selectedMemberId: UUID?
+
     private var user: User? { appState.currentUser }
+    private var myAccolades: [Accolade] { appState.accolades[user?.id ?? UUID()] ?? [] }
 
     var body: some View {
         ZStack {
@@ -18,6 +22,15 @@ struct ProfileView: View {
                     }
                 }
                 .ignoresSafeArea(edges: .top)
+                .sheet(isPresented: $showClaimAccolade) {
+                    ClaimAccoladeSheet().environmentObject(appState)
+                }
+                .sheet(item: Binding(
+                    get: { selectedMemberId.map { MemberIDWrapper(id: $0) } },
+                    set: { selectedMemberId = $0?.id }
+                )) { wrapper in
+                    MemberProfileView(userId: wrapper.id).environmentObject(appState)
+                }
             } else {
                 Text("No profile yet.")
                     .font(HappyFont.bodyLight())
@@ -91,6 +104,9 @@ struct ProfileView: View {
                     HStack(spacing: HappySpacing.xs) {
                         handicapPill(user.handicapDisplay)
                         pacePill(user.pacePreference)
+                        if let rating = user.rating {
+                            ratingPill(rating)
+                        }
                     }
                 }
 
@@ -113,9 +129,41 @@ struct ProfileView: View {
                 HStack {
                     statBlock(value: "\(appState.currentUserTeeTimes.count)", label: "Rounds")
                     Spacer()
-                    statBlock(value: "—", label: "Tour Card")
+                    statBlock(value: "\(myAccolades.count)", label: "Accolades")
                     Spacer()
-                    statBlock(value: "—", label: "Avg Rating")
+                    statBlock(
+                        value: user.rating != nil ? "⭐ \(user.ratingDisplay)" : "—",
+                        label: "Avg Rating"
+                    )
+                }
+
+                HappyDivider()
+
+                // Accolades section
+                VStack(alignment: .leading, spacing: HappySpacing.sm) {
+                    HStack {
+                        HappySectionLabel(text: "Accolades")
+                        Spacer()
+                        Button {
+                            showClaimAccolade = true
+                        } label: {
+                            Image(systemName: "plus")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.happyGreen)
+                        }
+                    }
+                    if myAccolades.isEmpty {
+                        Text("Claim your first accolade.")
+                            .font(HappyFont.bodyLight(size: 14))
+                            .foregroundColor(.happyMuted)
+                            .italic()
+                    } else {
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: HappySpacing.sm) {
+                            ForEach(myAccolades) { accolade in
+                                accoladeChip(accolade)
+                            }
+                        }
+                    }
                 }
 
                 HappyDivider()
@@ -177,6 +225,21 @@ struct ProfileView: View {
             .clipShape(Capsule())
     }
 
+    private func ratingPill(_ rating: Double) -> some View {
+        HStack(spacing: 3) {
+            Image(systemName: "star.fill")
+                .font(.system(size: 9))
+                .foregroundColor(.happyAccent)
+            Text(String(format: "%.1f", rating))
+                .font(HappyFont.bodyMedium(size: 12))
+                .foregroundColor(.happyGreenLight)
+        }
+        .padding(.vertical, 5)
+        .padding(.horizontal, 12)
+        .background(Color.happyAccent.opacity(0.1))
+        .clipShape(Capsule())
+    }
+
     private func pacePill(_ pace: PacePref) -> some View {
         Text("\(pace.emoji) \(pace.rawValue)")
             .font(HappyFont.bodyMedium(size: 12))
@@ -201,6 +264,48 @@ struct ProfileView: View {
         }
     }
 
+    private func accoladeChip(_ accolade: Accolade) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(accolade.type.emoji).font(.system(size: 18))
+                Text(accolade.type.displayName)
+                    .font(HappyFont.bodyMedium(size: 12))
+                    .foregroundColor(.happyBlack)
+                    .lineLimit(1)
+                Spacer()
+            }
+            if accolade.verifications.isEmpty {
+                Text("Awaiting verification")
+                    .font(HappyFont.metaTiny)
+                    .foregroundColor(.happyMuted)
+                    .italic()
+            } else {
+                HStack(spacing: 2) {
+                    Text("✓ ")
+                        .font(HappyFont.metaTiny)
+                        .foregroundColor(.happyGreenLight)
+                    ForEach(Array(accolade.verifications.prefix(2).enumerated()), id: \.element.id) { idx, ver in
+                        Button {
+                            selectedMemberId = ver.verifierId
+                        } label: {
+                            Text(appState.profileCache[ver.verifierId]?.name ?? "Member")
+                                .font(HappyFont.bodyMedium(size: 11))
+                                .foregroundColor(.happyGreen)
+                                .underline()
+                        }
+                        if idx < min(accolade.verifications.count, 2) - 1 {
+                            Text(",").font(HappyFont.metaTiny).foregroundColor(.happyMuted)
+                        }
+                    }
+                }
+            }
+        }
+        .padding(HappySpacing.sm)
+        .background(Color.happyWhite.opacity(0.6))
+        .cornerRadius(HappyRadius.card)
+        .overlay(RoundedRectangle(cornerRadius: HappyRadius.card).stroke(Color.happySandLight, lineWidth: 1))
+    }
+
     private func statBlock(value: String, label: String) -> some View {
         VStack(spacing: 4) {
             Text(value)
@@ -213,6 +318,11 @@ struct ProfileView: View {
         }
         .frame(maxWidth: .infinity)
     }
+}
+
+// Wrapper to make UUID sheet-presentable (shared via this file)
+struct MemberIDWrapper: Identifiable {
+    let id: UUID
 }
 
 #Preview {

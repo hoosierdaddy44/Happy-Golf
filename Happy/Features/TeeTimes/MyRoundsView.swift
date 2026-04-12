@@ -3,6 +3,7 @@ import SwiftUI
 struct MyRoundsView: View {
     @EnvironmentObject var appState: AppState
     @State private var tab = 0
+    @State private var selectedMemberId: UUID?
 
     private var hostedRounds: [TeeTime] {
         guard let user = appState.currentUser else { return [] }
@@ -56,6 +57,12 @@ struct MyRoundsView: View {
                 }
             }
         }
+        .sheet(item: Binding(
+            get: { selectedMemberId.map { MemberIDWrapper(id: $0) } },
+            set: { selectedMemberId = $0?.id }
+        )) { wrapper in
+            MemberProfileView(userId: wrapper.id).environmentObject(appState)
+        }
     }
 
     // MARK: - Hosting Tab
@@ -76,7 +83,7 @@ struct MyRoundsView: View {
                             .clipShape(Circle())
                     }
                     ForEach(pendingRequests) { req in
-                        JoinRequestRowView(request: req)
+                        JoinRequestRowView(request: req) { id in selectedMemberId = id }
                     }
                 }
                 .padding(.horizontal, HappySpacing.xl)
@@ -198,6 +205,7 @@ struct MyRoundsView: View {
 
 struct JoinRequestRowView: View {
     let request: JoinRequest
+    var onTapProfile: ((UUID) -> Void)? = nil
     @EnvironmentObject var appState: AppState
 
     private var requester: User? { appState.user(for: request.requesterId) }
@@ -207,20 +215,26 @@ struct JoinRequestRowView: View {
         if let user = requester {
             VStack(alignment: .leading, spacing: HappySpacing.sm) {
                 HStack(spacing: HappySpacing.sm) {
-                    HappyAvatar(user: user, size: 42)
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(user.name)
-                            .font(HappyFont.bodyMedium(size: 14))
-                            .foregroundColor(.happyBlack)
-                        if let tt = teeTime {
-                            Text(tt.courseName)
-                                .font(HappyFont.metaTiny)
-                                .foregroundColor(.happyGreen)
-                        }
-                        Text("HCP \(user.handicapDisplay) · \(user.pacePreference.rawValue)")
-                            .font(HappyFont.metaTiny)
-                            .foregroundColor(.happyMuted)
+                    Button { onTapProfile?(user.id) } label: {
+                        HappyAvatar(user: user, size: 42)
                     }
+                    .buttonStyle(.plain)
+                    Button { onTapProfile?(user.id) } label: {
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(user.name)
+                                .font(HappyFont.bodyMedium(size: 14))
+                                .foregroundColor(.happyBlack)
+                            if let tt = teeTime {
+                                Text(tt.courseName)
+                                    .font(HappyFont.metaTiny)
+                                    .foregroundColor(.happyGreen)
+                            }
+                            Text("HCP \(user.handicapDisplay) · \(user.pacePreference.rawValue)")
+                                .font(HappyFont.metaTiny)
+                                .foregroundColor(.happyMuted)
+                        }
+                    }
+                    .buttonStyle(.plain)
                     Spacer()
                 }
 

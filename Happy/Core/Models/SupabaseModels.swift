@@ -13,6 +13,8 @@ struct ProfileRow: Codable {
     let pacePreference: String
     let memberSince: Date
     let roundsPlayed: Int
+    let rating: Double?
+    let ratingCount: Int?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -23,6 +25,8 @@ struct ProfileRow: Codable {
         case pacePreference  = "pace_preference"
         case memberSince     = "member_since"
         case roundsPlayed    = "rounds_played"
+        case rating
+        case ratingCount     = "rating_count"
     }
 
     func toUser() -> User {
@@ -33,7 +37,9 @@ struct ProfileRow: Codable {
             industry: industry ?? "",
             pacePreference: PacePref(rawValue: pacePreference.capitalized) ?? .standard,
             homeCourses: homeCourses,
-            joinedAt: memberSince
+            joinedAt: memberSince,
+            rating: rating,
+            ratingCount: ratingCount ?? 0
         )
     }
 }
@@ -124,6 +130,75 @@ struct JoinRequestRow: Codable {
             status: RequestStatus(rawValue: status) ?? .pending,
             createdAt: createdAt
         )
+    }
+}
+
+struct RoundRatingRow: Codable {
+    let id: UUID
+    let teeTimeId: UUID
+    let raterId: UUID
+    let rateeId: UUID
+    let score: Int
+    let createdAt: Date
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case teeTimeId  = "tee_time_id"
+        case raterId    = "rater_id"
+        case rateeId    = "ratee_id"
+        case score
+        case createdAt  = "created_at"
+    }
+
+    func toRoundRating() -> RoundRating {
+        RoundRating(id: id, teeTimeId: teeTimeId, raterId: raterId,
+                    rateeId: rateeId, score: score, createdAt: createdAt)
+    }
+}
+
+struct AccoladeRow: Codable {
+    let id: UUID
+    let userId: UUID
+    let type: String
+    let teeTimeId: UUID?
+    let createdAt: Date
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case userId     = "user_id"
+        case type
+        case teeTimeId  = "tee_time_id"
+        case createdAt  = "created_at"
+    }
+
+    func toAccolade(verifications: [AccoladeVerification] = []) -> Accolade {
+        Accolade(
+            id: id,
+            userId: userId,
+            type: AccoladeType(rawValue: type) ?? .personalBest,
+            teeTimeId: teeTimeId,
+            createdAt: createdAt,
+            verifications: verifications
+        )
+    }
+}
+
+struct AccoladeVerificationRow: Codable {
+    let id: UUID
+    let accoladeId: UUID
+    let verifierId: UUID
+    let createdAt: Date
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case accoladeId = "accolade_id"
+        case verifierId = "verifier_id"
+        case createdAt  = "created_at"
+    }
+
+    func toVerification() -> AccoladeVerification {
+        AccoladeVerification(id: id, accoladeId: accoladeId,
+                             verifierId: verifierId, createdAt: createdAt)
     }
 }
 

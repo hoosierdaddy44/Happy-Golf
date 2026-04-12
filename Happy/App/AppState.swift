@@ -9,9 +9,11 @@ class AppState: ObservableObject {
     @Published var activityEvents: [ActivityEvent] = []
     @Published var isLoading: Bool = false
     @Published var error: String?
+    @Published var pendingRatingPrompts: [TeeTime] = []
+    @Published var accolades: [UUID: [Accolade]] = [:]
 
     // Cached profiles for displaying other users
-    private var profileCache: [UUID: User] = [:]
+    var profileCache: [UUID: User] = [:]
 
     // Set when using dev bypass (no real Supabase session)
     var devUserId: UUID?
@@ -37,6 +39,8 @@ class AppState: ObservableObject {
         _ = await (profileTask, teeTimesTask, activityTask)
         if currentUser != nil {
             await fetchJoinRequests(userId: userId)
+            checkPendingRatingPrompts(userId: userId)
+            await fetchAccolades(for: userId)
         }
         isLoading = false
     }
@@ -250,6 +254,118 @@ class AppState: ObservableObject {
             await logActivity(type: .declined, teeTimeId: request.teeTimeId)
         } catch {
             self.error = error.localizedDescription
+        }
+    }
+
+    // MARK: - Ratings & Accolades
+
+    func submitRating(teeTimeId: UUID, rateeId: UUID, score: Int) async {
+        guard let user = currentUser else { return }
+        do {
+            try await supabase
+                .from("round_ratings")
+                .insert([
+                    "tee_time_id": teeTimeId.uuidString,
+                    "rater_id": user.id.uuidString,
+                    "ratee_id": rateeId.uuidString,
+                    "score": String(score)
+                ])
+                .execute()
+            pendingRatingPrompts.removeAll { $0.id == teeTimeId }
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    func claimAccolade(type: AccoladeType, teeTimeId: UUID?) async {
+        guard let user = currentUser else { return }
+        if devUserId != nil { return } // skip in dev mode
+        do {
+            var body: [String: String] = [
+                "user_id": user.id.uuidString,
+                "type": type.rawValue
+            ]
+            if let ttId = teeTimeId { body["tee_time_id"] = ttId.uuidString }
+            let response = try await supabase
+                .from("accolades")
+                .insert(body)
+                .single()
+                .execute()
+            let row = try decoder.decode(AccoladeRow.self, from: response.data)
+            accolades[user.id, default: []].insert(row.toAccolade(), at: 0)
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    func verifyAccolade(_ accolade: Accolade) async {
+        guard let user = currentUser else { return }
+        if devUserId != nil { return }
+        do {
+            let response = try await supabase
+                .from("accolade_verifications")
+                .insert([
+                    "accolade_id": accolade.id.uuidString,
+                    "verifier_id": user.id.uuidString
+                ])
+                .single()
+                .execute()
+            let row = try decoder.decode(AccoladeVerificationRow.self, from: response.data)
+            let ver = row.toVerification()
+            if let idx = accolades[accolade.userId]?.firstIndex(where: { $0.id == accolade.id }) {
+                accolades[accolade.userId]?[idx].verifications.append(ver)
+            }
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    func fetchAccolades(for userId: UUID) async {
+        if devUserId != nil { return }
+        do {
+            let aResponse = try await supabase
+                .from("accolades")
+                .select()
+                .eq("user_id", value: userId)
+                .order("created_at", ascending: false)
+                .execute()
+            let rows = try decoder.decode([AccoladeRow].self, from: aResponse.data)
+            guard !rows.isEmpty else { accolades[userId] = []; return }
+
+            let vResponse = try await supabase
+                .from("accolade_verifications")
+                .select()
+                .in("accolade_id", values: rows.map { $0.id.uuidString })
+                .execute()
+            let verRows = try decoder.decode([AccoladeVerificationRow].self, from: vResponse.data)
+            let verifications = verRows.map { $0.toVerification() }
+
+            accolades[userId] = rows.map { row in
+                let vers = verifications.filter { $0.accoladeId == row.id }
+                return row.toAccolade(verifications: vers)
+            }
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    func fetchCachedProfile(userId: UUID) async {
+        guard profileCache[userId] == nil, devUserId == nil else { return }
+        do {
+            let response = try await supabase
+                .from("profiles")
+                .select()
+                .eq("id", value: userId)
+                .single()
+                .execute()
+            let row = try decoder.decode(ProfileRow.self, from: response.data)
+            profileCache[userId] = row.toUser()
+        } catch { }
+    }
+
+    private func checkPendingRatingPrompts(userId: UUID) {
+        pendingRatingPrompts = teeTimes.filter {
+            ($0.players.contains(userId) || $0.hostId == userId) && $0.date < Date()
         }
     }
 

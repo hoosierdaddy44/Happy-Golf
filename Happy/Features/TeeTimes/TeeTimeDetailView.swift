@@ -6,6 +6,7 @@ struct TeeTimeDetailView: View {
     @Environment(\.dismiss) var dismiss
 
     @State private var showJoinSheet = false
+    @State private var selectedMemberId: UUID?
 
     private var host: User? { appState.user(for: teeTime.hostId) }
     private var confirmedPlayers: [User] { teeTime.confirmedPlayerIds.compactMap { appState.user(for: $0) } }
@@ -26,6 +27,12 @@ struct TeeTimeDetailView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(item: Binding(
+            get: { selectedMemberId.map { MemberIDWrapper(id: $0) } },
+            set: { selectedMemberId = $0?.id }
+        )) { wrapper in
+            MemberProfileView(userId: wrapper.id).environmentObject(appState)
+        }
         .sheet(isPresented: $showJoinSheet) {
             JoinRequestSheet(teeTime: teeTime)
         }
@@ -111,34 +118,37 @@ struct TeeTimeDetailView: View {
     }
 
     private func playerRow(_ player: User) -> some View {
-        HStack(spacing: 11) {
-            HappyAvatar(user: player, size: 38)
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 4) {
-                    Text(player.name)
-                        .font(HappyFont.bodyMedium(size: 13))
-                        .foregroundColor(.happyBlack)
-                    if player.id == teeTime.hostId {
-                        Text("· Host")
-                            .font(HappyFont.bodyLight(size: 11))
-                            .foregroundColor(.happyMuted)
+        Button { selectedMemberId = player.id } label: {
+            HStack(spacing: 11) {
+                HappyAvatar(user: player, size: 38)
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 4) {
+                        Text(player.name)
+                            .font(HappyFont.bodyMedium(size: 13))
+                            .foregroundColor(.happyBlack)
+                        if player.id == teeTime.hostId {
+                            Text("· Host")
+                                .font(HappyFont.bodyLight(size: 11))
+                                .foregroundColor(.happyMuted)
+                        }
                     }
+                    Text("Handicap \(player.handicapDisplay)")
+                        .font(HappyFont.metaTiny)
+                        .foregroundColor(.happyMuted)
                 }
-                Text("Handicap \(player.handicapDisplay)")
-                    .font(HappyFont.metaTiny)
-                    .foregroundColor(.happyMuted)
+                Spacer()
+                Text(player.pacePreference.rawValue)
+                    .font(HappyFont.bodyMedium(size: 10))
+                    .tracking(0.7)
+                    .foregroundColor(.happyGreenLight)
+                    .padding(.vertical, 3)
+                    .padding(.horizontal, 8)
+                    .background(Color.happyGreenLight.opacity(0.08))
+                    .overlay(Capsule().stroke(Color.happyGreenLight.opacity(0.15), lineWidth: 1))
+                    .clipShape(Capsule())
             }
-            Spacer()
-            Text(player.pacePreference.rawValue)
-                .font(HappyFont.bodyMedium(size: 10))
-                .tracking(0.7)
-                .foregroundColor(.happyGreenLight)
-                .padding(.vertical, 3)
-                .padding(.horizontal, 8)
-                .background(Color.happyGreenLight.opacity(0.08))
-                .overlay(Capsule().stroke(Color.happyGreenLight.opacity(0.15), lineWidth: 1))
-                .clipShape(Capsule())
         }
+        .buttonStyle(.plain)
     }
 
     private var openSpotRow: some View {

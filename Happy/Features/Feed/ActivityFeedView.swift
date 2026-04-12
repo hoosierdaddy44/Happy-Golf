@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ActivityFeedView: View {
     @EnvironmentObject var appState: AppState
+    @State private var selectedMemberId: UUID?
 
     var body: some View {
         ZStack {
@@ -27,7 +28,7 @@ struct ActivityFeedView: View {
                     ScrollView(showsIndicators: false) {
                         LazyVStack(spacing: 0) {
                             ForEach(appState.activityEvents) { event in
-                                ActivityEventRowView(event: event)
+                                ActivityEventRowView(event: event) { id in selectedMemberId = id }
                                 if event.id != appState.activityEvents.last?.id {
                                     HappyDivider()
                                         .padding(.leading, 68)
@@ -47,6 +48,12 @@ struct ActivityFeedView: View {
                     }
                 }
             }
+        }
+        .sheet(item: Binding(
+            get: { selectedMemberId.map { MemberIDWrapper(id: $0) } },
+            set: { selectedMemberId = $0?.id }
+        )) { wrapper in
+            MemberProfileView(userId: wrapper.id).environmentObject(appState)
         }
     }
 
@@ -70,6 +77,7 @@ struct ActivityFeedView: View {
 
 struct ActivityEventRowView: View {
     let event: ActivityEvent
+    var onTapActor: ((UUID) -> Void)? = nil
     @EnvironmentObject var appState: AppState
 
     private var actor: User? { appState.user(for: event.actorId) }
@@ -77,14 +85,17 @@ struct ActivityEventRowView: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: HappySpacing.md) {
-            // Icon bubble
-            ZStack {
-                Circle()
-                    .fill(iconColor.opacity(0.12))
-                    .frame(width: 42, height: 42)
-                Text(event.icon)
-                    .font(.system(size: 18))
+            // Icon bubble (tappable to open actor profile)
+            Button { onTapActor?(event.actorId) } label: {
+                ZStack {
+                    Circle()
+                        .fill(iconColor.opacity(0.12))
+                        .frame(width: 42, height: 42)
+                    Text(event.icon)
+                        .font(.system(size: 18))
+                }
             }
+            .buttonStyle(.plain)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(headline)

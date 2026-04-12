@@ -31,6 +31,12 @@ struct MainTabView: View {
                 .tag(4)
         }
         .tint(.happyGreen)
+        .sheet(item: Binding(
+            get: { appState.pendingRatingPrompts.first },
+            set: { if $0 == nil { appState.pendingRatingPrompts.removeFirst() } }
+        )) { teeTime in
+            RatingPromptSheet(teeTime: teeTime).environmentObject(appState)
+        }
     }
 }
 
