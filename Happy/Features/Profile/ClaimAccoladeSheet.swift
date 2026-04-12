@@ -21,7 +21,7 @@ struct ClaimAccoladeSheet: View {
 
                 ScrollView(showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 0) {
-                        HappySectionLabel(text: "New Accolade")
+                        HappySectionLabel(text: "Tour Card")
                             .padding(.bottom, HappySpacing.md)
 
                         Text("Claim your moment.")

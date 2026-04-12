@@ -142,6 +142,7 @@ struct HappyTextField: View {
     @Binding var text: String
     var keyboardType: UIKeyboardType = .default
     var isRequired: Bool = false
+    var isSecure: Bool = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -156,18 +157,24 @@ struct HappyTextField: View {
                         .foregroundColor(.happyAccent)
                 }
             }
-            TextField(placeholder, text: $text)
-                .font(HappyFont.bodyRegular(size: 14))
-                .foregroundColor(.happyBlack)
-                .padding(.vertical, 13)
-                .padding(.horizontal, 16)
-                .background(Color.happyCream)
-                .cornerRadius(HappyRadius.input)
-                .overlay(
-                    RoundedRectangle(cornerRadius: HappyRadius.input)
-                        .stroke(Color.happySandLight, lineWidth: 1)
-                )
-                .keyboardType(keyboardType)
+            Group {
+                if isSecure {
+                    SecureField(placeholder, text: $text)
+                } else {
+                    TextField(placeholder, text: $text)
+                        .keyboardType(keyboardType)
+                }
+            }
+            .font(HappyFont.bodyRegular(size: 14))
+            .foregroundColor(.happyBlack)
+            .padding(.vertical, 13)
+            .padding(.horizontal, 16)
+            .background(Color.happyCream)
+            .cornerRadius(HappyRadius.input)
+            .overlay(
+                RoundedRectangle(cornerRadius: HappyRadius.input)
+                    .stroke(Color.happySandLight, lineWidth: 1)
+            )
         }
     }
 }

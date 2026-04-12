@@ -53,8 +53,9 @@ struct DevLoginView: View {
                         )
                         HappyTextField(
                             label: "Password",
-                            placeholder: "••••••••",
-                            text: $password
+                            placeholder: "Password",
+                            text: $password,
+                            isSecure: true
                         )
                     }
                     .padding(.bottom, HappySpacing.xl)

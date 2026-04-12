@@ -4,13 +4,15 @@ struct ProfileSetupView: View {
     @EnvironmentObject var appState: AppState
 
     @State private var step = 1
-    @State private var name = ""
+    @State private var firstName = ""
+    @State private var lastName = ""
     @State private var handicap = ""
     @State private var industry = ""
     @State private var pace: PacePref = .standard
     @State private var homeCourse = ""
 
-    private var isStep1Valid: Bool { !name.trimmingCharacters(in: .whitespaces).isEmpty && Double(handicap) != nil }
+    private var fullName: String { "\(firstName.trimmingCharacters(in: .whitespaces)) \(lastName.trimmingCharacters(in: .whitespaces))".trimmingCharacters(in: .whitespaces) }
+    private var isStep1Valid: Bool { !firstName.trimmingCharacters(in: .whitespaces).isEmpty && !lastName.trimmingCharacters(in: .whitespaces).isEmpty && Double(handicap) != nil }
 
     var body: some View {
         ZStack {
@@ -45,7 +47,7 @@ struct ProfileSetupView: View {
                     if step == 2 {
                         Button("Skip") {
                             Task { await appState.createProfile(
-                                name: name,
+                                name: fullName,
                                 handicap: Double(handicap) ?? 0,
                                 industry: "",
                                 pace: pace,
@@ -95,7 +97,7 @@ struct ProfileSetupView: View {
                                 withAnimation(.easeOut(duration: 0.3)) { step = 2 }
                             } else {
                                 Task { await appState.createProfile(
-                                    name: name,
+                                    name: fullName,
                                     handicap: Double(handicap) ?? 0,
                                     industry: industry,
                                     pace: pace,
@@ -133,12 +135,20 @@ struct ProfileSetupView: View {
                 .padding(.bottom, HappySpacing.xxl)
 
             VStack(spacing: HappySpacing.md) {
-                HappyTextField(
-                    label: "Full Name",
-                    placeholder: "Your name",
-                    text: $name,
-                    isRequired: true
-                )
+                HStack(spacing: HappySpacing.sm) {
+                    HappyTextField(
+                        label: "First Name",
+                        placeholder: "First",
+                        text: $firstName,
+                        isRequired: true
+                    )
+                    HappyTextField(
+                        label: "Last Name",
+                        placeholder: "Last",
+                        text: $lastName,
+                        isRequired: true
+                    )
+                }
                 HappyTextField(
                     label: "Handicap Index",
                     placeholder: "e.g. 8.4",

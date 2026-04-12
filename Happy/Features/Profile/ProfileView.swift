@@ -129,7 +129,7 @@ struct ProfileView: View {
                 HStack {
                     statBlock(value: "\(appState.currentUserTeeTimes.count)", label: "Rounds")
                     Spacer()
-                    statBlock(value: "\(myAccolades.count)", label: "Accolades")
+                    statBlock(value: "\(myAccolades.count)", label: "Tour Card")
                     Spacer()
                     statBlock(
                         value: user.rating != nil ? "⭐ \(user.ratingDisplay)" : "—",
@@ -142,7 +142,7 @@ struct ProfileView: View {
                 // Accolades section
                 VStack(alignment: .leading, spacing: HappySpacing.sm) {
                     HStack {
-                        HappySectionLabel(text: "Accolades")
+                        HappySectionLabel(text: "Tour Card")
                         Spacer()
                         Button {
                             showClaimAccolade = true

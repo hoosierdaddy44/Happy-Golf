@@ -141,7 +141,7 @@ struct MemberProfileView: View {
 
     private func accoladesSection(_ user: User) -> some View {
         VStack(alignment: .leading, spacing: HappySpacing.md) {
-            HappySectionLabel(text: "Accolades")
+            HappySectionLabel(text: "Tour Card")
                 .padding(.horizontal, HappySpacing.xl)
                 .padding(.top, HappySpacing.lg)
 
