@@ -2,6 +2,7 @@ import SwiftUI
 
 struct User: Identifiable, Equatable {
     let id: UUID
+    var email: String
     var name: String
     var username: String
     var handicapIndex: Double
@@ -32,6 +33,7 @@ struct User: Identifiable, Equatable {
 
     init(
         id: UUID = UUID(),
+        email: String = "",
         name: String,
         username: String = "",
         handicapIndex: Double,
@@ -46,6 +48,7 @@ struct User: Identifiable, Equatable {
         ratingCount: Int = 0
     ) {
         self.id = id
+        self.email = email
         self.name = name
         self.username = username
         self.handicapIndex = handicapIndex

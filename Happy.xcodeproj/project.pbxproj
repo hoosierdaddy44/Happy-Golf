@@ -45,6 +45,7 @@
 		B4E7956A120A1870CDE56584 /* HappyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA0863BBF2CD131B9EA13D4 /* HappyApp.swift */; };
 		BC92A67C8C977DC9800149DB /* ActivityEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC1D010FFF92BEB6466EF94 /* ActivityEvent.swift */; };
 		BECF36D195232D8923A453E8 /* DiscoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A10F8BBD19CEC599E5C261 /* DiscoveryView.swift */; };
+		C129F89D9463F0D074977CAC /* PendingApprovalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CF4785928014910EF150F47 /* PendingApprovalView.swift */; };
 		C30F2D5711857F4B5ECF590F /* StarRatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8BE78502B9F5AEF06540571 /* StarRatingView.swift */; };
 		CC8B3893785C1F5D14E1541D /* DevLoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33BC9BA3B10748403570D4F3 /* DevLoginView.swift */; };
 		CF291BA714A36C262C60C4B8 /* HostRoundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 780D4E1C3B05A2765D39925F /* HostRoundView.swift */; };
@@ -92,6 +93,7 @@
 		33BC9BA3B10748403570D4F3 /* DevLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevLoginView.swift; sourceTree = "<group>"; };
 		381DB6D6ECBA28F7112FADDF /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
 		3B7661E78A441AEFD81E823C /* PlayfairDisplay-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-Regular.ttf"; sourceTree = "<group>"; };
+		3CF4785928014910EF150F47 /* PendingApprovalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingApprovalView.swift; sourceTree = "<group>"; };
 		42534CC527FD50758B55C4B7 /* Happy.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Happy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		43528FFA764DEE0CEAA14FD5 /* PlayfairDisplay-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-Medium.ttf"; sourceTree = "<group>"; };
 		4422916BD8195C587FC73229 /* Happy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Happy.entitlements; sourceTree = "<group>"; };
@@ -313,6 +315,7 @@
 			children = (
 				33BC9BA3B10748403570D4F3 /* DevLoginView.swift */,
 				09CF769D41082F2AC0189DC7 /* EmailAuthView.swift */,
+				3CF4785928014910EF150F47 /* PendingApprovalView.swift */,
 				9430115AC6302C073E85EDA3 /* WelcomeView.swift */,
 			);
 			path = Auth;
@@ -496,6 +499,7 @@
 				153BE2F6D08AFB37AA8C50D6 /* MainTabView.swift in Sources */,
 				9AF9E1ACE2C7357300027C20 /* MemberProfileView.swift in Sources */,
 				F4F758452793DFD51E22212A /* MyRoundsView.swift in Sources */,
+				C129F89D9463F0D074977CAC /* PendingApprovalView.swift in Sources */,
 				6F41FE3B323551D21024EB20 /* PlayerSearchView.swift in Sources */,
 				75769CF2AF0E9BFDAC320083 /* ProfileSetupView.swift in Sources */,
 				67EF6F8FEE0B6BDECADC666F /* ProfileView.swift in Sources */,

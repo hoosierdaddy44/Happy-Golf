@@ -7,7 +7,7 @@ struct RatingPromptSheet: View {
 
     @State private var scores: [UUID: Int] = [:]
     @State private var step: Step = .rating
-    @State private var selectedAccoladeType: AccoladeType? = nil
+    @State private var selectedAccoladeTypes: Set<AccoladeType> = []
 
     enum Step { case rating, accolade }
 
@@ -78,7 +78,7 @@ struct RatingPromptSheet: View {
                             withAnimation { step = .accolade }
                         }
                     }
-                    Button("Skip") { dismiss() }
+                    Button("Skip") { appState.dismissRatingPrompt(for: teeTime.id); dismiss() }
                         .font(HappyFont.bodyMedium(size: 13))
                         .foregroundColor(.happyMuted)
                 }
@@ -122,18 +122,18 @@ struct RatingPromptSheet: View {
                 HappyDivider()
                 VStack(spacing: HappySpacing.sm) {
                     HappyPrimaryButton(
-                        title: selectedAccoladeType != nil ? "Claim \(selectedAccoladeType!.emoji) →" : "Claim →",
+                        title: selectedAccoladeTypes.isEmpty ? "Claim →" : "Claim \(selectedAccoladeTypes.count) →",
                         fullWidth: true
                     ) {
                         Task {
-                            if let type = selectedAccoladeType {
+                            for type in selectedAccoladeTypes {
                                 await appState.claimAccolade(type: type, teeTimeId: teeTime.id)
                             }
                             dismiss()
                         }
                     }
-                    .disabled(selectedAccoladeType == nil)
-                    .opacity(selectedAccoladeType == nil ? 0.5 : 1)
+                    .disabled(selectedAccoladeTypes.isEmpty)
+                    .opacity(selectedAccoladeTypes.isEmpty ? 0.5 : 1)
 
                     Button("Skip") { dismiss() }
                         .font(HappyFont.bodyMedium(size: 13))
@@ -185,9 +185,9 @@ struct RatingPromptSheet: View {
     }
 
     private func accoladeChip(_ type: AccoladeType) -> some View {
-        let isSelected = selectedAccoladeType == type
+        let isSelected = selectedAccoladeTypes.contains(type)
         return Button {
-            selectedAccoladeType = isSelected ? nil : type
+            if isSelected { selectedAccoladeTypes.remove(type) } else { selectedAccoladeTypes.insert(type) }
         } label: {
             HStack(spacing: HappySpacing.xs) {
                 Text(type.emoji).font(.system(size: 18))

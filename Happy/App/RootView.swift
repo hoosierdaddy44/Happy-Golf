@@ -10,7 +10,11 @@ struct RootView: View {
                 SplashView()
             } else if authManager.isSignedIn {
                 if appState.isOnboarded {
-                    MainTabView()
+                    if appState.isApproved {
+                        MainTabView()
+                    } else {
+                        PendingApprovalView()
+                    }
                 } else {
                     ProfileSetupView()
                 }
@@ -18,9 +22,11 @@ struct RootView: View {
                 WelcomeView()
             }
         }
+        .preferredColorScheme(.light)
         .animation(.easeOut(duration: 0.4), value: authManager.isReady)
         .animation(.easeOut(duration: 0.4), value: authManager.isSignedIn)
         .animation(.easeOut(duration: 0.3), value: appState.isOnboarded)
+        .animation(.easeOut(duration: 0.3), value: appState.isApproved)
         .onChange(of: authManager.isSignedIn) { _, signedIn in
             if signedIn {
                 let userId = authManager.session?.user.id ?? UUID()

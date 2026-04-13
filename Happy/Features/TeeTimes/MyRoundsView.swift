@@ -143,6 +143,15 @@ struct MyRoundsView: View {
                 ForEach(joinedRounds) { tt in
                     roundRow(tt, role: "Confirmed")
                         .onTapGesture { selectedTeeTime = tt }
+                        .contextMenu {
+                            if !tt.isCompleted {
+                                Button(role: .destructive) {
+                                    Task { await appState.leaveRound(teeTimeId: tt.id) }
+                                } label: {
+                                    Label("Leave Round", systemImage: "figure.walk")
+                                }
+                            }
+                        }
                 }
             }
         }

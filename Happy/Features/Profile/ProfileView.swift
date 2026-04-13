@@ -9,6 +9,7 @@ struct ProfileView: View {
     @State private var selectedMemberId: UUID?
     @State private var showPlayerSearch = false
     @State private var showEditProfile = false
+    @State private var showDeleteConfirm = false
 
     private var user: User? { appState.currentUser }
     private var myAccolades: [Accolade] { appState.accolades[user?.id ?? UUID()] ?? [] }
@@ -39,6 +40,17 @@ struct ProfileView: View {
                         EditProfileSheet(user: user).environmentObject(appState)
                     }
                 }
+                .alert("Delete Account", isPresented: $showDeleteConfirm) {
+                    Button("Delete", role: .destructive) {
+                        Task {
+                            await appState.deleteAccount()
+                            await authManager.signOut()
+                        }
+                    }
+                    Button("Cancel", role: .cancel) {}
+                } message: {
+                    Text("This will permanently delete your account and all your data. This cannot be undone.")
+                }
 
                 // Floating header buttons — always visible regardless of scroll position
                 VStack {
@@ -54,6 +66,9 @@ struct ProfileView: View {
                             Button("Edit Profile") { showEditProfile = true }
                             Button("Sign Out", role: .destructive) {
                                 Task { await authManager.signOut() }
+                            }
+                            Button("Delete Account", role: .destructive) {
+                                showDeleteConfirm = true
                             }
                         } label: {
                             Image(systemName: "ellipsis")

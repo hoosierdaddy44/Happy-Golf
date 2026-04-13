@@ -27,6 +27,7 @@ struct HostRoundView: View {
     var body: some View {
         ZStack {
             Color.happyCream.ignoresSafeArea()
+                .onTapGesture { dismissKeyboard() }
 
             if submitted {
                 successView
@@ -34,6 +35,10 @@ struct HostRoundView: View {
                 formView
             }
         }
+    }
+
+    private func dismissKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 
     // MARK: - Form
@@ -147,6 +152,14 @@ struct HostRoundView: View {
                             .background(Color.happyCream)
                             .cornerRadius(HappyRadius.input)
                             .overlay(RoundedRectangle(cornerRadius: HappyRadius.input).stroke(Color.happySandLight, lineWidth: 1))
+                            .toolbar {
+                                ToolbarItemGroup(placement: .keyboard) {
+                                    Spacer()
+                                    Button("Done") { dismissKeyboard() }
+                                        .font(HappyFont.bodyMedium(size: 14))
+                                        .foregroundColor(.happyGreen)
+                                }
+                            }
                     }
                 }
                 .padding(.horizontal, HappySpacing.xl)
@@ -162,6 +175,7 @@ struct HostRoundView: View {
                 .padding(.bottom, HappySpacing.section)
             }
         }
+        .scrollDismissesKeyboard(.interactively)
     }
 
     // MARK: - Sub-components

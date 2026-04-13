@@ -13,6 +13,25 @@ class AppState: ObservableObject {
     @Published var pendingRatingPrompts: [TeeTime] = []
     @Published var accolades: [UUID: [Accolade]] = [:]
     @Published var friendships: [Friendship] = []
+    @Published var isApproved: Bool = false
+
+    // Tracks tee time IDs the user has already rated or dismissed
+    private var dismissedRatingPromptIds: Set<UUID> {
+        get {
+            let stored = UserDefaults.standard.array(forKey: "dismissedRatingPromptIds") as? [String] ?? []
+            return Set(stored.compactMap { UUID(uuidString: $0) })
+        }
+        set {
+            UserDefaults.standard.set(newValue.map { $0.uuidString }, forKey: "dismissedRatingPromptIds")
+        }
+    }
+
+    func dismissRatingPrompt(for id: UUID) {
+        var ids = dismissedRatingPromptIds
+        ids.insert(id)
+        dismissedRatingPromptIds = ids
+        pendingRatingPrompts.removeAll { $0.id == id }
+    }
 
     // Cached profiles for displaying other users
     var profileCache: [UUID: User] = [:]
@@ -61,8 +80,26 @@ class AppState: ObservableObject {
             await fetchFriendships(userId: userId)
             checkPendingRatingPrompts(userId: userId)
             await fetchAccolades(for: userId)
+            await checkApproval()
         }
         isLoading = false
+    }
+
+    func checkApproval() async {
+        if devUserId != nil { isApproved = true; return }
+        guard let email = currentUser?.email else { return }
+        do {
+            let response = try await supabase
+                .from("approved_members")
+                .select("email")
+                .eq("email", value: email.lowercased())
+                .limit(1)
+                .execute()
+            let rows = try JSONDecoder().decode([[String: String]].self, from: response.data)
+            isApproved = !rows.isEmpty
+        } catch {
+            isApproved = false
+        }
     }
 
     // MARK: - Fetch
@@ -81,6 +118,7 @@ class AppState: ObservableObject {
                let (data, _) = try? await URLSession.shared.data(from: url) {
                 user.avatarImageData = data
             }
+            user.email = (try? await supabase.auth.session.user.email) ?? ""
             currentUser = user
             profileCache[userId] = user
             isOnboarded = true
@@ -279,6 +317,29 @@ class AppState: ObservableObject {
         }
     }
 
+    func leaveRound(teeTimeId: UUID) async {
+        guard let userId = currentUser?.id else { return }
+        if let idx = teeTimes.firstIndex(where: { $0.id == teeTimeId }) {
+            teeTimes[idx].players.removeAll { $0 == userId }
+        }
+        guard devUserId == nil else { return }
+        _ = try? await supabase
+            .from("join_requests")
+            .update(["status": "withdrawn"])
+            .eq("tee_time_id", value: teeTimeId.uuidString)
+            .eq("requester_id", value: userId.uuidString)
+            .execute()
+    }
+
+    func deleteAccount() async {
+        guard let userId = currentUser?.id else { return }
+        guard devUserId == nil else { return }
+        _ = try? await supabase.from("profiles").delete().eq("id", value: userId.uuidString).execute()
+        _ = try? await supabase.from("tee_times").update(["is_active": false]).eq("host_id", value: userId.uuidString).execute()
+        _ = try? await supabase.auth.admin.deleteUser(id: userId.uuidString)
+        try? await supabase.auth.signOut()
+    }
+
     func deleteTeeTime(id: UUID) async {
         teeTimes.removeAll { $0.id == id }
         guard devUserId == nil else { return }
@@ -428,6 +489,8 @@ class AppState: ObservableObject {
 
     func submitRating(teeTimeId: UUID, rateeId: UUID, score: Int) async {
         guard let user = currentUser else { return }
+        dismissRatingPrompt(for: teeTimeId)
+        if devUserId != nil { return }
         do {
             try await supabase
                 .from("round_ratings")
@@ -438,7 +501,6 @@ class AppState: ObservableObject {
                     "score": String(score)
                 ])
                 .execute()
-            pendingRatingPrompts.removeAll { $0.id == teeTimeId }
         } catch {
             self.error = error.localizedDescription
         }
@@ -557,8 +619,11 @@ class AppState: ObservableObject {
     }
 
     func checkPendingRatingPrompts(userId: UUID) {
+        let dismissed = dismissedRatingPromptIds
         pendingRatingPrompts = teeTimes.filter {
-            ($0.players.contains(userId) || $0.hostId == userId) && $0.date < Date()
+            ($0.players.contains(userId) || $0.hostId == userId) &&
+            $0.date < Date() &&
+            !dismissed.contains($0.id)
         }
     }
 
@@ -667,7 +732,20 @@ class AppState: ObservableObject {
                 .limit(20)
                 .execute()
             let rows = try decoder.decode([ProfileRow].self, from: response.data)
-            let users = rows.map { $0.toUser() }
+            var users = rows.map { $0.toUser() }
+            await withTaskGroup(of: (Int, Data?).self) { group in
+                for (i, row) in rows.enumerated() {
+                    if let urlStr = row.avatarUrl, let url = URL(string: urlStr) {
+                        group.addTask {
+                            let data = try? await URLSession.shared.data(from: url).0
+                            return (i, data)
+                        }
+                    }
+                }
+                for await (i, data) in group {
+                    users[i].avatarImageData = data
+                }
+            }
             for u in users { profileCache[u.id] = u }
             return users
         } catch {
