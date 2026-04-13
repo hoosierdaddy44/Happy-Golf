@@ -741,6 +741,43 @@
     line-height: 1.6;
   }
 
+  /* CONSENT CHECKBOX */
+  .consent-group {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-top: 20px;
+    margin-bottom: 4px;
+    padding: 16px;
+    background: var(--cream);
+    border-radius: 10px;
+    border: 1px solid var(--sand-light);
+  }
+
+  .consent-checkbox {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    margin-top: 1px;
+    accent-color: var(--green);
+    cursor: pointer;
+  }
+
+  .consent-label {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    cursor: pointer;
+  }
+
+  .consent-label a {
+    color: var(--green-light);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .consent-label a:hover { color: var(--green); }
+
   /* FOOTER */
   footer {
     padding: 40px 24px;
@@ -782,6 +819,23 @@
     letter-spacing: 0.04em;
   }
 
+  .footer-legal {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .footer-legal a {
+    font-size: 11px;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+  }
+
+  .footer-legal a:hover { color: var(--green); text-decoration: underline; }
+
   /* ANIMATIONS */
   .fade-up {
     opacity: 0;
@@ -805,7 +859,7 @@
     <div class="nav-logo-mark">⛳</div>
     <div>
       <div class="nav-logo-text">Happy</div>
-      <div class="nav-domain">happy.golf</div>
+      <div class="nav-domain">joinhappy.golf</div>
     </div>
   </div>
   <a href="#access" class="nav-cta">Request Access</a>
@@ -1005,6 +1059,11 @@
     </div>
 
     <div class="form-group">
+      <label class="form-label">Email Address <span style="color:#E8A838">*</span></label>
+      <input id="field-email" type="email" class="form-input" placeholder="you@example.com" required>
+    </div>
+
+    <div class="form-group">
       <label class="form-label">Phone Number <span style="color:#E8A838">*</span></label>
       <input id="field-phone" type="tel" class="form-input" placeholder="+1 (212) 000-0000" required>
     </div>
@@ -1069,8 +1128,15 @@
       <input id="field-courses" type="text" class="form-input" placeholder="e.g. Bethpage, Winged Foot, public courses in LI" required>
     </div>
 
+    <div class="consent-group">
+      <input type="checkbox" id="consent-marketing" class="consent-checkbox">
+      <label class="consent-label" for="consent-marketing">
+        I agree to receive membership updates, product news, and promotional emails from Happy Golf. I understand I can unsubscribe at any time by clicking the unsubscribe link in any email. View our <a href="/privacy" target="_blank">Privacy Policy</a> and <a href="/terms" target="_blank">Terms of Service</a>.
+      </label>
+    </div>
+
     <button class="form-submit" onclick="handleSubmit(this)">Request Access →</button>
-    <p class="form-note">Limited NYC & South Florida beta. We're accepting a small number of members to start.<br>happy.golf</p>
+    <p class="form-note">Limited NYC & South Florida beta. We're accepting a small number of members to start.<br>joinhappy.golf</p>
   </div>
 </section>
 
@@ -1080,8 +1146,13 @@
     <div class="footer-logo-mark">⛳</div>
     <div class="footer-logo-text">Happy</div>
   </div>
-  <div class="footer-domain">happy.golf</div>
-  <div class="footer-copy">© 2025 Happy. Private network. NYC Beta.</div>
+  <div class="footer-domain">joinhappy.golf</div>
+  <div class="footer-legal">
+    <a href="/privacy">Privacy Policy</a>
+    <a href="/terms">Terms of Service</a>
+    <a href="mailto:hello@joinhappy.golf">hello@joinhappy.golf</a>
+  </div>
+  <div class="footer-copy">© 2025 Happy Golf LLC. Private network. NYC & South Florida Beta.</div>
 </footer>
 
 <script>
@@ -1108,15 +1179,24 @@
 
   async function handleSubmit(btn) {
     const name = document.querySelector('#field-name').value.trim();
+    const email = document.querySelector('#field-email').value.trim();
     const phone = document.querySelector('#field-phone').value.trim();
     const job = document.querySelector('#field-job').value.trim();
     const industry = document.querySelector('#field-industry').value;
+    const location = document.querySelector('#field-location').value;
     const handicap = document.querySelector('#field-handicap').value;
     const pace = document.querySelector('input[name="pace"]:checked')?.value || '';
     const courses = document.querySelector('#field-courses').value.trim();
+    const marketingConsent = document.querySelector('#consent-marketing').checked;
 
-    if (!name || !phone || !job || !industry || !handicap || !pace || !courses) {
+    if (!name || !email || !phone || !job || !industry || !location || !handicap || !pace || !courses) {
       alert('All fields are required. Please complete the full application.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert('Please enter a valid email address.');
       return;
     }
 
@@ -1132,14 +1212,26 @@
           'Authorization': `Bearer ${SUPABASE_KEY}`,
           'Prefer': 'return=minimal'
         },
-        body: JSON.stringify({ name, phone, job, industry, handicap: handicap || null, pace, courses })
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          job,
+          industry,
+          location,
+          handicap: handicap || null,
+          pace,
+          courses,
+          marketing_consent: marketingConsent,
+          consent_timestamp: new Date().toISOString()
+        })
       });
 
       if (res.ok) {
         btn.textContent = "✓ You're on the list";
         btn.style.background = '#2E6045';
         const note = document.querySelector('.form-note');
-        note.innerHTML = "We'll be in touch soon. Welcome to Happy.<br>happy.golf";
+        note.innerHTML = "We'll be in touch soon. Welcome to Happy.<br>joinhappy.golf";
         note.style.color = '#2E6045';
       } else {
         throw new Error('Submission failed');
