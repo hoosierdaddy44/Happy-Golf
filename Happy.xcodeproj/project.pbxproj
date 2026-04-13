@@ -26,6 +26,7 @@
 		6F41FE3B323551D21024EB20 /* PlayerSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E017E4B7C24CC2E614038A5A /* PlayerSearchView.swift */; };
 		75769CF2AF0E9BFDAC320083 /* ProfileSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06445DE1E1D3A4E05F329085 /* ProfileSetupView.swift */; };
 		75C38D3B8E4226D1490952C5 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D7DF3302C645EF33D964932 /* DesignSystem.swift */; };
+		77F2F3A20B117326DF541BD8 /* HappyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA7D0487F3C5EEA864A292B6 /* HappyUITests.swift */; };
 		7BF33C9AE2C4FE62478808DB /* PlayfairDisplay-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3B7661E78A441AEFD81E823C /* PlayfairDisplay-Regular.ttf */; };
 		7C20971FC35DE0A8BC4DAA90 /* InstrumentSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9B3CA3790A618C6FCDFE3E13 /* InstrumentSans-Medium.ttf */; };
 		7D270256F7E09F05738C5569 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E57FC986098E539A8F2C15F4 /* Assets.xcassets */; };
@@ -37,6 +38,7 @@
 		9A911561037C77D135BF3C64 /* PlayfairDisplay-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 43528FFA764DEE0CEAA14FD5 /* PlayfairDisplay-Medium.ttf */; };
 		9AF9E1ACE2C7357300027C20 /* MemberProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADDC85C8363D06F03EA7A7C5 /* MemberProfileView.swift */; };
 		A242E803A0C5EE81C205FB6D /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 381DB6D6ECBA28F7112FADDF /* SplashView.swift */; };
+		A39398C7CA0680D695270B98 /* ModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96F337564426FBDE09E1E869 /* ModelTests.swift */; };
 		A7342A76CBDEE7B97B85395B /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9430115AC6302C073E85EDA3 /* WelcomeView.swift */; };
 		AE56F16454CB5F592C6B44B5 /* ClaimAccoladeSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 643D31D9B20D3202E529F9C5 /* ClaimAccoladeSheet.swift */; };
 		B2C69BF9A150E5D0DDA5FBB8 /* CourseSearchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D3663C20983F76794EC2832 /* CourseSearchService.swift */; };
@@ -49,11 +51,29 @@
 		D3EAE857AA1184D04E9F4788 /* SupabaseClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AEC21BD4F3F9B0EAD994916 /* SupabaseClient.swift */; };
 		D7267E6A66B8C260FA182A17 /* HappyComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84002B144F135F9D988D34AD /* HappyComponents.swift */; };
 		DACD47DA94465335AA3BA6A2 /* ScoreEntrySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA79F37EDFDB4D855711EF01 /* ScoreEntrySheet.swift */; };
+		DFB02C7003DCDA719CC94031 /* AppStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E1339AE9A0C77ECACAE65A0 /* AppStateTests.swift */; };
 		DFD0CC647FFBC7B92165A651 /* ActivityFeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88D49644F8A545B881CD8BCD /* ActivityFeedView.swift */; };
 		E94EFAF0225AE56012C37C49 /* InstrumentSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B20042A6EF236C00627D0AE5 /* InstrumentSans-Regular.ttf */; };
 		EE84104E3D71A1764B79DD25 /* TeeTimeDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B1FE20EAB653D7DCEB5C67 /* TeeTimeDetailView.swift */; };
 		F4F758452793DFD51E22212A /* MyRoundsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF42A56DC7E0E50264569390 /* MyRoundsView.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		4399D62F13A22A6A2B1D5786 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 43EF9B091B47B05F50DC4106 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A6F71DDE03E2C4DFD3DEE9DB;
+			remoteInfo = Happy;
+		};
+		5771898A3A2E9EDAC8EA66F2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 43EF9B091B47B05F50DC4106 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A6F71DDE03E2C4DFD3DEE9DB;
+			remoteInfo = Happy;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		05A452A84948DC26F8D82CCD /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
@@ -66,6 +86,7 @@
 		0D7DF3302C645EF33D964932 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
 		11B99CF00341060CB28C9F67 /* JoinRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JoinRequest.swift; sourceTree = "<group>"; };
 		23EADA1E964ABAEF02366E2A /* SupabaseModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseModels.swift; sourceTree = "<group>"; };
+		2E1339AE9A0C77ECACAE65A0 /* AppStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateTests.swift; sourceTree = "<group>"; };
 		309A0836F6682F3BC28B73F0 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
 		319B67618BC873CE3427EC11 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		33BC9BA3B10748403570D4F3 /* DevLoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevLoginView.swift; sourceTree = "<group>"; };
@@ -78,6 +99,7 @@
 		576488974BA49B3301A28B72 /* PlayfairDisplay-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-Italic.ttf"; sourceTree = "<group>"; };
 		643D31D9B20D3202E529F9C5 /* ClaimAccoladeSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaimAccoladeSheet.swift; sourceTree = "<group>"; };
 		65528D6DAFFD74F352B00223 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		67C4D7CE4BEA07F50A822757 /* HappyTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = HappyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6F33163066938D4DE445D173 /* Accolade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Accolade.swift; sourceTree = "<group>"; };
 		72E09FCDCE429B99C0C09EAE /* CourseSearchField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseSearchField.swift; sourceTree = "<group>"; };
 		730CA192A7B5E5ABA28405D6 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
@@ -87,13 +109,16 @@
 		88D49644F8A545B881CD8BCD /* ActivityFeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityFeedView.swift; sourceTree = "<group>"; };
 		8AEC21BD4F3F9B0EAD994916 /* SupabaseClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseClient.swift; sourceTree = "<group>"; };
 		9430115AC6302C073E85EDA3 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		96F337564426FBDE09E1E869 /* ModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelTests.swift; sourceTree = "<group>"; };
 		9B3CA3790A618C6FCDFE3E13 /* InstrumentSans-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "InstrumentSans-Medium.ttf"; sourceTree = "<group>"; };
 		9F9B4FDF6D4477530BF9F039 /* PlayfairDisplay-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-Bold.ttf"; sourceTree = "<group>"; };
 		ADDC85C8363D06F03EA7A7C5 /* MemberProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemberProfileView.swift; sourceTree = "<group>"; };
 		B20042A6EF236C00627D0AE5 /* InstrumentSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "InstrumentSans-Regular.ttf"; sourceTree = "<group>"; };
 		B9A10F8BBD19CEC599E5C261 /* DiscoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoveryView.swift; sourceTree = "<group>"; };
+		BD0B49A103ECB58406DED2C3 /* HappyUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = HappyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C208E2C0035998797A0C2449 /* EditProfileSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileSheet.swift; sourceTree = "<group>"; };
 		C9C5F15D2A7AAE058994C7F3 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		CA7D0487F3C5EEA864A292B6 /* HappyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HappyUITests.swift; sourceTree = "<group>"; };
 		D29CDB58163F3A8BCBE1C4CF /* AppIcon.svg */ = {isa = PBXFileReference; path = AppIcon.svg; sourceTree = "<group>"; };
 		D30A6B039EF68F606836270F /* TeeTime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeeTime.swift; sourceTree = "<group>"; };
 		DA79F37EDFDB4D855711EF01 /* ScoreEntrySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreEntrySheet.swift; sourceTree = "<group>"; };
@@ -122,6 +147,8 @@
 			isa = PBXGroup;
 			children = (
 				F5ABE3D7FB492E2A5480FF48 /* Happy */,
+				A0186CE92E00F0D8686552EC /* HappyTests */,
+				730F5A1C8920ACFE378DEE02 /* HappyUITests */,
 				99AE24AD244D096357E17144 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -200,6 +227,14 @@
 			path = App;
 			sourceTree = "<group>";
 		};
+		730F5A1C8920ACFE378DEE02 /* HappyUITests */ = {
+			isa = PBXGroup;
+			children = (
+				CA7D0487F3C5EEA864A292B6 /* HappyUITests.swift */,
+			);
+			path = HappyUITests;
+			sourceTree = "<group>";
+		};
 		87A0F251C7E4D808CDF29C3A /* Components */ = {
 			isa = PBXGroup;
 			children = (
@@ -214,8 +249,19 @@
 			isa = PBXGroup;
 			children = (
 				42534CC527FD50758B55C4B7 /* Happy.app */,
+				67C4D7CE4BEA07F50A822757 /* HappyTests.xctest */,
+				BD0B49A103ECB58406DED2C3 /* HappyUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		A0186CE92E00F0D8686552EC /* HappyTests */ = {
+			isa = PBXGroup;
+			children = (
+				2E1339AE9A0C77ECACAE65A0 /* AppStateTests.swift */,
+				96F337564426FBDE09E1E869 /* ModelTests.swift */,
+			);
+			path = HappyTests;
 			sourceTree = "<group>";
 		};
 		C021EEC214E02206A36EF416 /* Features */ = {
@@ -303,6 +349,42 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		731610C6E2DDC06CDA1D4504 /* HappyUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D5007E915F69C508A1BF318A /* Build configuration list for PBXNativeTarget "HappyUITests" */;
+			buildPhases = (
+				CB68438FFAC950A808D8D073 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2978AE161C889490AA604B0F /* PBXTargetDependency */,
+			);
+			name = HappyUITests;
+			packageProductDependencies = (
+			);
+			productName = HappyUITests;
+			productReference = BD0B49A103ECB58406DED2C3 /* HappyUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		A03FCB77B84D00FBF70838C4 /* HappyTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CD5FE4B27E0AA0E1712958A1 /* Build configuration list for PBXNativeTarget "HappyTests" */;
+			buildPhases = (
+				773FA2E77F15CF77048DD0E9 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B90D8747F9385D7D39D65160 /* PBXTargetDependency */,
+			);
+			name = HappyTests;
+			packageProductDependencies = (
+			);
+			productName = HappyTests;
+			productReference = 67C4D7CE4BEA07F50A822757 /* HappyTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		A6F71DDE03E2C4DFD3DEE9DB /* Happy */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1E23CF2572119682E215C1EA /* Build configuration list for PBXNativeTarget "Happy" */;
@@ -332,6 +414,13 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
+					731610C6E2DDC06CDA1D4504 = {
+						DevelopmentTeam = P8CF8C6DX7;
+						TestTargetID = A6F71DDE03E2C4DFD3DEE9DB;
+					};
+					A03FCB77B84D00FBF70838C4 = {
+						DevelopmentTeam = P8CF8C6DX7;
+					};
 					A6F71DDE03E2C4DFD3DEE9DB = {
 						DevelopmentTeam = P8CF8C6DX7;
 					};
@@ -355,6 +444,8 @@
 			projectRoot = "";
 			targets = (
 				A6F71DDE03E2C4DFD3DEE9DB /* Happy */,
+				A03FCB77B84D00FBF70838C4 /* HappyTests */,
+				731610C6E2DDC06CDA1D4504 /* HappyUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -422,7 +513,37 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		773FA2E77F15CF77048DD0E9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DFB02C7003DCDA719CC94031 /* AppStateTests.swift in Sources */,
+				A39398C7CA0680D695270B98 /* ModelTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CB68438FFAC950A808D8D073 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				77F2F3A20B117326DF541BD8 /* HappyUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2978AE161C889490AA604B0F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A6F71DDE03E2C4DFD3DEE9DB /* Happy */;
+			targetProxy = 4399D62F13A22A6A2B1D5786 /* PBXContainerItemProxy */;
+		};
+		B90D8747F9385D7D39D65160 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A6F71DDE03E2C4DFD3DEE9DB /* Happy */;
+			targetProxy = 5771898A3A2E9EDAC8EA66F2 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		13399146D4356F3EB3B16406 /* Debug */ = {
@@ -443,6 +564,44 @@
 			};
 			name = Debug;
 		};
+		16C1E260E90D560A88D7239D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.joinhappygolf.tests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Happy.app/Happy";
+			};
+			name = Debug;
+		};
+		5F17D4187B5F5B647DC6AC57 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.joinhappygolf.uitests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Happy;
+			};
+			name = Release;
+		};
 		9BAF6C56734EB3DE1325DFBC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -460,6 +619,44 @@
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
+		};
+		B49FD57EB5F9A394921E52A4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.joinhappygolf.tests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Happy.app/Happy";
+			};
+			name = Release;
+		};
+		BA80077C4235A60319528D39 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.joinhappygolf.uitests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Happy;
+			};
+			name = Debug;
 		};
 		D3E2DA1D334F68325D22BCDC /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -601,6 +798,24 @@
 			buildConfigurations = (
 				E249E0527B763BCF3F326A91 /* Debug */,
 				D3E2DA1D334F68325D22BCDC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		CD5FE4B27E0AA0E1712958A1 /* Build configuration list for PBXNativeTarget "HappyTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				16C1E260E90D560A88D7239D /* Debug */,
+				B49FD57EB5F9A394921E52A4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D5007E915F69C508A1BF318A /* Build configuration list for PBXNativeTarget "HappyUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BA80077C4235A60319528D39 /* Debug */,
+				5F17D4187B5F5B647DC6AC57 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

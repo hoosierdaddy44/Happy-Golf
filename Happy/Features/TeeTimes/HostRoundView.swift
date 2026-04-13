@@ -58,7 +58,9 @@ struct HostRoundView: View {
                     // Course
                     VStack(spacing: HappySpacing.md) {
                         CourseSearchField(label: "Course Name *", courseName: $courseName, location: $courseLocation)
-                        HappyTextField(label: "Location", placeholder: "e.g. Farmingdale, NY", text: $courseLocation)
+                        if !courseLocation.isEmpty {
+                            HappyTextField(label: "Location", placeholder: "e.g. Farmingdale, NY", text: $courseLocation)
+                        }
                     }
 
                     HappyDivider()
@@ -71,7 +73,7 @@ struct HostRoundView: View {
                             .tint(.happyGreen)
                             .padding(.vertical, 11)
                             .padding(.horizontal, HappySpacing.md)
-                            .background(Color.happyCream)
+                            .background(Color.happyWhite)
                             .cornerRadius(HappyRadius.input)
                             .overlay(RoundedRectangle(cornerRadius: HappyRadius.input).stroke(Color.happySandLight, lineWidth: 1))
                     }
@@ -81,12 +83,12 @@ struct HostRoundView: View {
                         HStack(spacing: 0) {
                             wheelPicker("Hour", selection: $teeTimeHour, options: Array(1...12), label: { "\($0)" })
                             Text(":").font(HappyFont.displayMedium(size: 20)).foregroundColor(.happyGreen).padding(.horizontal, 4)
-                            wheelPicker("Min", selection: $teeTimeMinute, options: [0, 6, 12, 18, 24, 30, 36, 42, 48, 54], label: { String(format: "%02d", $0) })
+                            wheelPicker("Min", selection: $teeTimeMinute, options: Array(stride(from: 0, through: 55, by: 5)), label: { String(format: "%02d", $0) })
                             wheelPicker("AM/PM", selection: $teeTimeAMPM, options: [0, 1], label: { $0 == 0 ? "AM" : "PM" })
                         }
                         .padding(.horizontal, HappySpacing.md)
                         .padding(.vertical, 4)
-                        .background(Color.happyCream)
+                        .background(Color.happyWhite)
                         .cornerRadius(HappyRadius.input)
                         .overlay(RoundedRectangle(cornerRadius: HappyRadius.input).stroke(Color.happySandLight, lineWidth: 1))
                     }
@@ -191,7 +193,9 @@ struct HostRoundView: View {
     private func wheelPicker<T: Hashable>(_ title: String, selection: Binding<T>, options: [T], label: @escaping (T) -> String) -> some View {
         Picker(title, selection: selection) {
             ForEach(options, id: \.self) { opt in
-                Text(label(opt)).tag(opt)
+                Text(label(opt))
+                    .foregroundColor(.happyGreen)
+                    .tag(opt)
             }
         }
         .pickerStyle(.wheel)

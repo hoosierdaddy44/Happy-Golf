@@ -9,7 +9,6 @@ struct CourseSearchField: View {
 
     @StateObject private var service = CourseSearchService()
     @State private var showSuggestions = false
-    @State private var fieldFrame: CGRect = .zero
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -25,8 +24,9 @@ struct CourseSearchField: View {
                 TextField("e.g. Bethpage Black", text: $courseName)
                     .font(HappyFont.bodyRegular(size: 14))
                     .foregroundColor(.happyBlack)
+                    .autocorrectionDisabled()
                     .onChange(of: courseName) { _, val in
-                        showSuggestions = true
+                        showSuggestions = !val.isEmpty
                         service.search(query: val)
                     }
 
@@ -49,65 +49,50 @@ struct CourseSearchField: View {
             .background(Color.happyCream)
             .cornerRadius(HappyRadius.input)
             .overlay(RoundedRectangle(cornerRadius: HappyRadius.input).stroke(Color.happySandLight, lineWidth: 1))
-            .background(
-                GeometryReader { geo in
-                    Color.clear.onAppear {
-                        fieldFrame = geo.frame(in: .global)
-                    }.onChange(of: geo.frame(in: .global)) { _, frame in
-                        fieldFrame = frame
-                    }
-                }
-            )
-        }
-        .overlay(alignment: .topLeading) {
+
+            // Suggestions rendered inline — no z-index conflicts
             if showSuggestions && !service.results.isEmpty {
-                suggestionsList
-                    .frame(width: fieldFrame.width)
-                    .offset(y: fieldFrame.height + 26) // label height + input height
-                    .zIndex(999)
-            }
-        }
-    }
-
-    private var suggestionsList: some View {
-        VStack(spacing: 0) {
-            ForEach(Array(service.results.prefix(5).enumerated()), id: \.element.id) { idx, result in
-                Button {
-                    courseName = result.name
-                    location?.wrappedValue = result.location
-                    service.clear()
-                    showSuggestions = false
-                } label: {
-                    HStack(spacing: HappySpacing.sm) {
-                        Image(systemName: "flag.fill")
-                            .font(.system(size: 11))
-                            .foregroundColor(.happyGreenLight)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(result.name)
-                                .font(HappyFont.bodyMedium(size: 13))
-                                .foregroundColor(.happyBlack)
-                            if !result.location.isEmpty {
-                                Text(result.location)
-                                    .font(HappyFont.metaTiny)
-                                    .foregroundColor(.happyMuted)
+                VStack(spacing: 0) {
+                    ForEach(Array(service.results.prefix(4).enumerated()), id: \.element.id) { idx, result in
+                        Button {
+                            courseName = result.name
+                            location?.wrappedValue = result.location
+                            service.clear()
+                            showSuggestions = false
+                        } label: {
+                            HStack(spacing: HappySpacing.sm) {
+                                Image(systemName: "flag.fill")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.happyGreenLight)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(result.name)
+                                        .font(HappyFont.bodyMedium(size: 13))
+                                        .foregroundColor(.happyBlack)
+                                    if !result.location.isEmpty {
+                                        Text(result.location)
+                                            .font(HappyFont.metaTiny)
+                                            .foregroundColor(.happyMuted)
+                                    }
+                                }
+                                Spacer()
                             }
+                            .padding(.horizontal, HappySpacing.md)
+                            .padding(.vertical, HappySpacing.sm)
+                            .background(Color.happyWhite)
                         }
-                        Spacer()
-                    }
-                    .padding(.horizontal, HappySpacing.md)
-                    .padding(.vertical, HappySpacing.sm)
-                    .background(Color.happyWhite)
-                }
-                .buttonStyle(.plain)
+                        .buttonStyle(.plain)
 
-                if idx < min(service.results.count, 5) - 1 {
-                    HappyDivider().padding(.horizontal, HappySpacing.md)
+                        if idx < min(service.results.count, 4) - 1 {
+                            HappyDivider().padding(.horizontal, HappySpacing.md)
+                        }
+                    }
                 }
+                .background(Color.happyWhite)
+                .cornerRadius(HappyRadius.card)
+                .overlay(RoundedRectangle(cornerRadius: HappyRadius.card).stroke(Color.happySandLight, lineWidth: 1))
+                .shadow(color: Color.happyGreen.opacity(0.08), radius: 12, y: 4)
+                .padding(.top, 4)
             }
         }
-        .background(Color.happyWhite)
-        .cornerRadius(HappyRadius.card)
-        .overlay(RoundedRectangle(cornerRadius: HappyRadius.card).stroke(Color.happySandLight, lineWidth: 1))
-        .shadow(color: Color.happyGreen.opacity(0.1), radius: 16, y: 6)
     }
 }

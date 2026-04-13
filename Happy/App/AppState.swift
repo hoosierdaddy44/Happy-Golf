@@ -252,8 +252,46 @@ class AppState: ObservableObject {
         }
     }
 
+    func deleteTeeTime(id: UUID) async {
+        teeTimes.removeAll { $0.id == id }
+        guard devUserId == nil else { return }
+        _ = try? await supabase
+            .from("tee_times")
+            .update(["is_active": false])
+            .eq("id", value: id)
+            .execute()
+    }
+
+    func updateTeeTime(_ teeTime: TeeTime) async {
+        if let idx = teeTimes.firstIndex(where: { $0.id == teeTime.id }) {
+            teeTimes[idx] = teeTime
+        }
+        guard devUserId == nil else { return }
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        _ = try? await supabase
+            .from("tee_times")
+            .update([
+                "open_spots": String(teeTime.openSpots),
+                "total_spots": String(teeTime.totalSpots),
+                "tee_time": teeTime.teeTimeString,
+                "carry_mode": teeTime.carryMode.rawValue,
+                "tees": teeTime.tees ?? "",
+                "notes": teeTime.notes ?? ""
+            ])
+            .eq("id", value: teeTime.id)
+            .execute()
+    }
+
     func hostTeeTime(_ teeTime: TeeTime) async {
         guard let user = currentUser else { return }
+
+        // Dev mode: add in-memory only
+        if devUserId != nil {
+            teeTimes.insert(teeTime, at: 0)
+            return
+        }
+
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
 
@@ -284,6 +322,14 @@ class AppState: ObservableObject {
 
     func requestToJoin(teeTime: TeeTime, note: String?) async {
         guard let user = currentUser else { return }
+
+        // Dev mode: add in-memory only
+        if devUserId != nil {
+            let req = JoinRequest(id: UUID(), teeTimeId: teeTime.id, requesterId: user.id, note: note, status: .pending, createdAt: Date())
+            joinRequests.append(req)
+            return
+        }
+
         do {
             let response = try await supabase
                 .from("join_requests")

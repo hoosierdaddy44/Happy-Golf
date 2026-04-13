@@ -206,16 +206,20 @@ struct ProfileView: View {
 
                 HappyDivider()
 
-                // Hosted rounds preview
+                // Recent rounds: upcoming first, then completed
+                let completedRounds = appState.currentUserTeeTimes.sorted { a, b in
+                    if a.isCompleted != b.isCompleted { return !a.isCompleted }
+                    return a.date < b.date
+                }
                 VStack(alignment: .leading, spacing: HappySpacing.sm) {
                     HappySectionLabel(text: "Recent Rounds")
-                    if appState.currentUserTeeTimes.isEmpty {
-                        Text("No rounds yet. Host your first one.")
+                    if completedRounds.isEmpty {
+                        Text("No rounds yet.")
                             .font(HappyFont.bodyLight(size: 14))
                             .foregroundColor(.happyMuted)
                             .italic()
                     } else {
-                        ForEach(appState.currentUserTeeTimes.prefix(3)) { tt in
+                        ForEach(completedRounds.prefix(3)) { tt in
                             HStack {
                                 VStack(alignment: .leading, spacing: 3) {
                                     Text(tt.courseName)
@@ -226,15 +230,10 @@ struct ProfileView: View {
                                         .foregroundColor(.happyMuted)
                                 }
                                 Spacer()
-                                if tt.hostId == user.id {
-                                    Text("Host")
-                                        .font(HappyFont.bodyMedium(size: 10))
-                                        .tracking(0.6)
-                                        .foregroundColor(.happyGreenLight)
-                                        .padding(.vertical, 3)
-                                        .padding(.horizontal, 8)
-                                        .background(Color.happyGreenLight.opacity(0.1))
-                                        .clipShape(Capsule())
+                                if let score = tt.score {
+                                    Text("\(score)")
+                                        .font(HappyFont.displayMedium(size: 20))
+                                        .foregroundColor(.happyGreen)
                                 }
                             }
                             .padding(.vertical, HappySpacing.xs)

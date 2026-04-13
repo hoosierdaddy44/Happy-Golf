@@ -5,6 +5,7 @@ struct MyRoundsView: View {
     @State private var tab = 0
     @State private var selectedMemberId: UUID?
     @State private var scoreSheetTeeTime: TeeTime?
+    @State private var selectedTeeTime: TeeTime?
 
     private var hostedRounds: [TeeTime] {
         guard let user = appState.currentUser else { return [] }
@@ -68,6 +69,10 @@ struct MyRoundsView: View {
             ScoreEntrySheet(teeTime: tt)
                 .environmentObject(appState)
         }
+        .sheet(item: $selectedTeeTime) { tt in
+            TeeTimeDetailView(teeTime: tt)
+                .environmentObject(appState)
+        }
     }
 
     // MARK: - Hosting Tab
@@ -110,6 +115,14 @@ struct MyRoundsView: View {
                 } else {
                     ForEach(hostedRounds) { tt in
                         roundRow(tt, role: "Host")
+                            .onTapGesture { selectedTeeTime = tt }
+                            .contextMenu {
+                                Button(role: .destructive) {
+                                    Task { await appState.deleteTeeTime(id: tt.id) }
+                                } label: {
+                                    Label("Delete Round", systemImage: "trash")
+                                }
+                            }
                     }
                 }
             }
@@ -129,6 +142,7 @@ struct MyRoundsView: View {
             } else {
                 ForEach(joinedRounds) { tt in
                     roundRow(tt, role: "Confirmed")
+                        .onTapGesture { selectedTeeTime = tt }
                 }
             }
         }

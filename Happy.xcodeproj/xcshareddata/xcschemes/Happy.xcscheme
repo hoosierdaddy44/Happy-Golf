@@ -39,6 +39,28 @@
          </BuildableReference>
       </MacroExpansion>
       <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A03FCB77B84D00FBF70838C4"
+               BuildableName = "HappyTests.xctest"
+               BlueprintName = "HappyTests"
+               ReferencedContainer = "container:Happy.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "731610C6E2DDC06CDA1D4504"
+               BuildableName = "HappyUITests.xctest"
+               BlueprintName = "HappyUITests"
+               ReferencedContainer = "container:Happy.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <CommandLineArguments>
       </CommandLineArguments>

@@ -34,4 +34,35 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"
         CODE_SIGN_ENTITLEMENTS: Happy/Happy.entitlements
     scheme:
-      testTargets: []
+      testTargets:
+        - HappyTests
+        - HappyUITests
+
+  HappyTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: HappyTests
+    dependencies:
+      - target: Happy
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.joinhappygolf.tests
+        SWIFT_VERSION: "5.9"
+        GENERATE_INFOPLIST_FILE: YES
+
+  HappyUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: HappyUITests
+    dependencies:
+      - target: Happy
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.joinhappygolf.uitests
+        TEST_TARGET_NAME: Happy
+        SWIFT_VERSION: "5.9"
+        GENERATE_INFOPLIST_FILE: YES
