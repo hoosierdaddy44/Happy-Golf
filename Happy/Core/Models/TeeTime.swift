@@ -17,7 +17,22 @@ struct TeeTime: Identifiable, Hashable {
     var score: Int?
     let createdAt: Date
 
-    var isCompleted: Bool { date < Date() }
+    var isCompleted: Bool {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm a"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        if let teeDate = formatter.date(from: teeTimeString) {
+            let cal = Calendar.current
+            let components = cal.dateComponents([.hour, .minute], from: teeDate)
+            if let roundStart = cal.date(bySettingHour: components.hour ?? 0,
+                                         minute: components.minute ?? 0,
+                                         second: 0, of: date) {
+                // Consider completed 5 hours after tee time (avg round length)
+                return roundStart.addingTimeInterval(5 * 3600) < Date()
+            }
+        }
+        return date < Date()
+    }
 
     var par: Int { 72 } // default par, can be extended later
 

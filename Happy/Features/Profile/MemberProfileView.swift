@@ -47,6 +47,24 @@ struct MemberProfileView: View {
             Color.happyGreen
                 .frame(height: 180)
 
+            // Dismiss button
+            VStack {
+                HStack {
+                    Spacer()
+                    Button { dismiss() } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.7))
+                            .padding(10)
+                            .background(Color.white.opacity(0.15))
+                            .clipShape(Circle())
+                    }
+                    .padding(.trailing, HappySpacing.md)
+                    .padding(.top, HappySpacing.md)
+                }
+                Spacer()
+            }
+
             VStack(spacing: 0) {
                 HappyAvatar(user: user, size: 80)
                     .padding(.bottom, HappySpacing.sm)
@@ -232,7 +250,12 @@ struct MemberProfileView: View {
 
     private func accoladeChip(_ accolade: Accolade, viewerUser: User?) -> some View {
         let alreadyVerified = accolade.verifications.contains { $0.verifierId == viewerUser?.id }
-        let canVerify = viewerUser?.id != userId && !alreadyVerified
+        // Only allow verify if viewer was a participant in that specific round
+        let wasInRound: Bool = {
+            guard let viewerId = viewerUser?.id, let ttId = accolade.teeTimeId else { return false }
+            return memberRounds.first(where: { $0.id == ttId })?.confirmedPlayerIds.contains(viewerId) ?? false
+        }()
+        let canVerify = viewerUser?.id != userId && !alreadyVerified && wasInRound
 
         return VStack(alignment: .leading, spacing: 6) {
             HStack {
