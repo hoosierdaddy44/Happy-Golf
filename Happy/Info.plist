@@ -36,6 +36,17 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.joinhappygolf.app</string>
+			</array>
+			<key>CFBundleURLName</key>
+			<string>com.joinhappygolf.app</string>
+		</dict>
+	</array>
 	<key>UIAppFonts</key>
 	<array>
 		<string>PlayfairDisplay-Regular.ttf</string>

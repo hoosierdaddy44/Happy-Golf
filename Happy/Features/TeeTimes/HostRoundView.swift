@@ -11,8 +11,11 @@ struct HostRoundView: View {
     @State private var teeTimeAMPM = 0
     @State private var openSpots = 2
     @State private var carryMode: CarryMode = .walking
+    @State private var tees = "Blue"
     @State private var notes = ""
     @State private var submitted = false
+
+    private let teesOptions = ["Championship", "Blue", "White", "Gold", "Red"]
 
     private var isValid: Bool { !courseName.trimmingCharacters(in: .whitespaces).isEmpty }
 
@@ -54,7 +57,7 @@ struct HostRoundView: View {
 
                     // Course
                     VStack(spacing: HappySpacing.md) {
-                        HappyTextField(label: "Course Name", placeholder: "e.g. Bethpage Black", text: $courseName, isRequired: true)
+                        CourseSearchField(label: "Course Name *", courseName: $courseName, location: $courseLocation)
                         HappyTextField(label: "Location", placeholder: "e.g. Farmingdale, NY", text: $courseLocation)
                     }
 
@@ -103,6 +106,15 @@ struct HostRoundView: View {
                         }
                     }
 
+                    // Tees
+                    fieldGroup(label: "Tees") {
+                        HStack(spacing: HappySpacing.xs) {
+                            ForEach(teesOptions, id: \.self) { t in
+                                segmentButton(label: t, selected: tees == t, action: { tees = t })
+                            }
+                        }
+                    }
+
                     // Carry mode
                     fieldGroup(label: "Carry Mode") {
                         HStack(spacing: HappySpacing.xs) {
@@ -127,6 +139,7 @@ struct HostRoundView: View {
                         TextEditor(text: $notes)
                             .font(HappyFont.bodyRegular(size: 14))
                             .foregroundColor(.happyBlack)
+                            .scrollContentBackground(.hidden)
                             .frame(height: 88)
                             .padding(HappySpacing.md)
                             .background(Color.happyCream)
@@ -199,6 +212,7 @@ struct HostRoundView: View {
             openSpots: openSpots,
             totalSpots: openSpots + 1,
             carryMode: carryMode,
+            tees: tees,
             notes: notes.isEmpty ? nil : notes
         )
         Task { await appState.hostTeeTime(tt) }

@@ -6,6 +6,7 @@ struct MemberProfileView: View {
     @Environment(\.dismiss) var dismiss
 
     @State private var selectedVerifierId: UUID?
+    @State private var memberRounds: [TeeTime] = []
 
     private var user: User? { appState.profileCache[userId] }
     private var userAccolades: [Accolade] { appState.accolades[userId] ?? [] }
@@ -30,6 +31,7 @@ struct MemberProfileView: View {
             async let p: () = appState.fetchCachedProfile(userId: userId)
             async let a: () = appState.fetchAccolades(for: userId)
             _ = await (p, a)
+            memberRounds = await appState.fetchRoundsForUser(userId: userId)
         }
         .sheet(item: Binding(
             get: { selectedVerifierId.map { MemberProfileWrapper(id: $0) } },
@@ -103,8 +105,76 @@ struct MemberProfileView: View {
             .clipShape(Capsule())
     }
 
+    private var friendButton: some View {
+        let status = appState.friendshipStatus(with: userId)
+        let sentByMe = appState.isFriendRequestSentByMe(to: userId)
+
+        return Group {
+            if status == .accepted {
+                Button {
+                    Task { await appState.removeFriend(userId) }
+                } label: {
+                    Label("Friends", systemImage: "checkmark")
+                        .font(HappyFont.bodyMedium(size: 13))
+                        .foregroundColor(.happyGreenLight)
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 20)
+                        .background(Color.happyGreenLight.opacity(0.1))
+                        .clipShape(Capsule())
+                        .overlay(Capsule().stroke(Color.happyGreenLight.opacity(0.3), lineWidth: 1))
+                }
+            } else if status == .pending && !sentByMe {
+                Button {
+                    Task { await appState.acceptFriendRequest(from: userId) }
+                } label: {
+                    Label("Accept Request", systemImage: "person.badge.plus")
+                        .font(HappyFont.bodyMedium(size: 13))
+                        .foregroundColor(.happyGreen)
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 20)
+                        .background(Color.happyGreen.opacity(0.08))
+                        .clipShape(Capsule())
+                        .overlay(Capsule().stroke(Color.happyGreen.opacity(0.25), lineWidth: 1))
+                }
+            } else if status == .pending {
+                Label("Request Sent", systemImage: "clock")
+                    .font(HappyFont.bodyMedium(size: 13))
+                    .foregroundColor(.happyMuted)
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 20)
+                    .overlay(Capsule().stroke(Color.happyMuted.opacity(0.3), lineWidth: 1))
+            } else {
+                Button {
+                    Task { await appState.sendFriendRequest(to: userId) }
+                } label: {
+                    Label("Add Friend", systemImage: "person.badge.plus")
+                        .font(HappyFont.bodyMedium(size: 13))
+                        .foregroundColor(.happyCream)
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 20)
+                        .background(Color.happyGreen)
+                        .clipShape(Capsule())
+                }
+            }
+        }
+        .buttonStyle(.plain)
+        .animation(.easeOut(duration: 0.2), value: status)
+    }
+
     private func profileBody(_ user: User) -> some View {
         VStack(alignment: .leading, spacing: 0) {
+            // Add Friend CTA
+            if appState.currentUser?.id != userId {
+                HStack {
+                    Spacer()
+                    friendButton
+                    Spacer()
+                }
+                .padding(.vertical, HappySpacing.md)
+
+                HappyDivider()
+            }
+
             // Details
             VStack(alignment: .leading, spacing: HappySpacing.sm) {
                 if !user.industry.isEmpty {
@@ -120,6 +190,11 @@ struct MemberProfileView: View {
             if !userAccolades.isEmpty {
                 HappyDivider()
                 accoladesSection(user)
+            }
+
+            if !memberRounds.isEmpty {
+                HappyDivider()
+                recentRoundsSection(user)
             }
 
             Spacer(minLength: 40)
@@ -210,6 +285,84 @@ struct MemberProfileView: View {
             }
         }
         .padding(HappySpacing.sm)
+        .background(Color.happyWhite)
+        .cornerRadius(HappyRadius.card)
+        .overlay(RoundedRectangle(cornerRadius: HappyRadius.card).stroke(Color.happySandLight, lineWidth: 1))
+    }
+
+    private func recentRoundsSection(_ user: User) -> some View {
+        VStack(alignment: .leading, spacing: HappySpacing.md) {
+            HappySectionLabel(text: "Recent Rounds")
+                .padding(.horizontal, HappySpacing.xl)
+                .padding(.top, HappySpacing.lg)
+
+            VStack(spacing: HappySpacing.xs) {
+                ForEach(memberRounds) { round in
+                    recentRoundRow(round, user: user)
+                }
+            }
+            .padding(.horizontal, HappySpacing.xl)
+            .padding(.bottom, HappySpacing.lg)
+        }
+    }
+
+    private func recentRoundRow(_ round: TeeTime, user: User) -> some View {
+        VStack(alignment: .leading, spacing: HappySpacing.xs) {
+            HStack {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(round.courseName)
+                        .font(HappyFont.displayMedium(size: 15))
+                        .foregroundColor(.happyGreen)
+                    HStack(spacing: 4) {
+                        Text(round.dateDisplay)
+                            .font(HappyFont.metaSmall)
+                            .foregroundColor(.happyMuted)
+                        if let tees = round.tees {
+                            Text("· \(tees) Tees")
+                                .font(HappyFont.metaSmall)
+                                .foregroundColor(.happyMuted)
+                        }
+                    }
+                }
+                Spacer()
+                if let score = round.score {
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text("\(score)")
+                            .font(HappyFont.displayMedium(size: 20))
+                            .foregroundColor(.happyGreen)
+                        let net = score - Int(user.handicapIndex)
+                        let diff = net - round.par
+                        Text("Net \(net) (\(diff > 0 ? "+\(diff)" : "\(diff)"))")
+                            .font(HappyFont.metaTiny)
+                            .foregroundColor(.happyMuted)
+                    }
+                }
+            }
+
+            // Players played with
+            let coPlayers = round.confirmedPlayerIds.filter { $0 != userId }
+            if !coPlayers.isEmpty {
+                HStack(spacing: 4) {
+                    Text("With")
+                        .font(HappyFont.metaTiny)
+                        .foregroundColor(.happyMuted)
+                    ForEach(Array(coPlayers.prefix(3).enumerated()), id: \.element) { idx, pid in
+                        Text(appState.user(for: pid)?.name ?? "Member")
+                            .font(HappyFont.bodyMedium(size: 11))
+                            .foregroundColor(.happyGreen)
+                        if idx < min(coPlayers.count, 3) - 1 {
+                            Text("·").font(HappyFont.metaTiny).foregroundColor(.happyMuted)
+                        }
+                    }
+                    if coPlayers.count > 3 {
+                        Text("+ \(coPlayers.count - 3) more")
+                            .font(HappyFont.metaTiny)
+                            .foregroundColor(.happyMuted)
+                    }
+                }
+            }
+        }
+        .padding(HappySpacing.md)
         .background(Color.happyWhite)
         .cornerRadius(HappyRadius.card)
         .overlay(RoundedRectangle(cornerRadius: HappyRadius.card).stroke(Color.happySandLight, lineWidth: 1))

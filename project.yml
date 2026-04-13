@@ -1,6 +1,6 @@
 name: Happy
 options:
-  bundleIdPrefix: com.happy
+  bundleIdPrefix: com.joinhappygolf
   deploymentTarget:
     iOS: "17.0"
   xcodeVersion: "15.0"
@@ -13,8 +13,8 @@ packages:
 settings:
   base:
     SWIFT_VERSION: "5.9"
-    DEVELOPMENT_TEAM: ""
-    PRODUCT_BUNDLE_IDENTIFIER: com.happy.golf
+    DEVELOPMENT_TEAM: P8CF8C6DX7
+    PRODUCT_BUNDLE_IDENTIFIER: com.joinhappygolf.app
     IPHONEOS_DEPLOYMENT_TARGET: "17.0"
 
 targets:
@@ -30,7 +30,8 @@ targets:
     settings:
       base:
         INFOPLIST_FILE: Happy/Info.plist
-        PRODUCT_BUNDLE_IDENTIFIER: com.happy.golf
+        PRODUCT_BUNDLE_IDENTIFIER: com.joinhappygolf.app
         TARGETED_DEVICE_FAMILY: "1"
+        CODE_SIGN_ENTITLEMENTS: Happy/Happy.entitlements
     scheme:
       testTargets: []

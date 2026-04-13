@@ -186,12 +186,22 @@ struct HappyAvatar: View {
     var size: CGFloat = 34
 
     var body: some View {
-        Text(user.initials)
-            .font(.custom("PlayfairDisplay-Medium", size: size * 0.38))
-            .foregroundColor(.happyWhite)
-            .frame(width: size, height: size)
-            .background(user.avatarColor)
-            .clipShape(Circle())
+        Group {
+            if let data = user.avatarImageData, let uiImage = UIImage(data: data) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: size, height: size)
+                    .clipShape(Circle())
+            } else {
+                Text(user.initials)
+                    .font(.custom("PlayfairDisplay-Medium", size: size * 0.38))
+                    .foregroundColor(.happyWhite)
+                    .frame(width: size, height: size)
+                    .background(user.avatarColor)
+                    .clipShape(Circle())
+            }
+        }
     }
 }
 

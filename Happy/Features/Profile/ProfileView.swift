@@ -1,11 +1,14 @@
 import SwiftUI
+import PhotosUI
 
 struct ProfileView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var authManager: AuthManager
 
-    @State private var showClaimAccolade = false
+    @State private var pickerItem: PhotosPickerItem?
     @State private var selectedMemberId: UUID?
+    @State private var showPlayerSearch = false
+    @State private var showEditProfile = false
 
     private var user: User? { appState.currentUser }
     private var myAccolades: [Accolade] { appState.accolades[user?.id ?? UUID()] ?? [] }
@@ -22,14 +25,46 @@ struct ProfileView: View {
                     }
                 }
                 .ignoresSafeArea(edges: .top)
-                .sheet(isPresented: $showClaimAccolade) {
-                    ClaimAccoladeSheet().environmentObject(appState)
-                }
                 .sheet(item: Binding(
                     get: { selectedMemberId.map { MemberIDWrapper(id: $0) } },
                     set: { selectedMemberId = $0?.id }
                 )) { wrapper in
                     MemberProfileView(userId: wrapper.id).environmentObject(appState)
+                }
+                .sheet(isPresented: $showPlayerSearch) {
+                    PlayerSearchView().environmentObject(appState)
+                }
+                .sheet(isPresented: $showEditProfile) {
+                    if let user = appState.currentUser {
+                        EditProfileSheet(user: user).environmentObject(appState)
+                    }
+                }
+
+                // Floating header buttons — always visible regardless of scroll position
+                VStack {
+                    HStack {
+                        Spacer()
+                        Button { showPlayerSearch = true } label: {
+                            Image(systemName: "person.badge.plus")
+                                .font(.system(size: 17, weight: .medium))
+                                .foregroundColor(Color.white.opacity(0.75))
+                                .padding(10)
+                        }
+                        Menu {
+                            Button("Edit Profile") { showEditProfile = true }
+                            Button("Sign Out", role: .destructive) {
+                                Task { await authManager.signOut() }
+                            }
+                        } label: {
+                            Image(systemName: "ellipsis")
+                                .font(.system(size: 17, weight: .medium))
+                                .foregroundColor(Color.white.opacity(0.75))
+                                .padding(10)
+                        }
+                    }
+                    .padding(.horizontal, HappySpacing.md)
+                    .padding(.top, 60)
+                    Spacer()
                 }
             } else {
                 Text("No profile yet.")
@@ -52,36 +87,49 @@ struct ProfileView: View {
                 .offset(x: 60, y: 80)
 
             VStack(alignment: .leading, spacing: 0) {
-                // Edit button
-                HStack {
-                    Spacer()
-                    Menu {
-                        Button("Edit Profile", action: {})
-                        Button("Sign Out", role: .destructive) {
-                            Task { await authManager.signOut() }
-                        }
-                    } label: {
-                        Image(systemName: "ellipsis")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(Color.white.opacity(0.6))
-                            .padding(10)
-                    }
-                }
+                // Spacer to push avatar down (buttons are now in floating overlay)
+                HStack { Spacer() }
                 .padding(.top, 60)
                 .padding(.horizontal, HappySpacing.xl)
 
                 Spacer()
 
                 // Avatar — sits half-over the card edge
-                Text(user.initials)
-                    .font(.custom("PlayfairDisplay-Medium", size: 30))
-                    .foregroundColor(.happyWhite)
-                    .frame(width: 76, height: 76)
-                    .background(user.avatarColor)
-                    .clipShape(Circle())
+                PhotosPicker(selection: $pickerItem, matching: .images) {
+                    ZStack(alignment: .bottomTrailing) {
+                        if let data = user.avatarImageData, let uiImage = UIImage(data: data) {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 76, height: 76)
+                                .clipShape(Circle())
+                        } else {
+                            Text(user.initials)
+                                .font(.custom("PlayfairDisplay-Medium", size: 30))
+                                .foregroundColor(.happyWhite)
+                                .frame(width: 76, height: 76)
+                                .background(user.avatarColor)
+                                .clipShape(Circle())
+                        }
+                        Image(systemName: "camera.fill")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundColor(.happyWhite)
+                            .padding(5)
+                            .background(Color.happyGreen)
+                            .clipShape(Circle())
+                            .offset(x: 2, y: 2)
+                    }
                     .overlay(Circle().stroke(Color.white.opacity(0.12), lineWidth: 2))
-                    .padding(.leading, HappySpacing.xl)
-                    .offset(y: 38)
+                }
+                .onChange(of: pickerItem) { _, item in
+                    Task {
+                        if let data = try? await item?.loadTransferable(type: Data.self) {
+                            await appState.updateAvatar(data)
+                        }
+                    }
+                }
+                .padding(.leading, HappySpacing.xl)
+                .offset(y: 38)
             }
         }
         .frame(height: 220)
@@ -141,17 +189,7 @@ struct ProfileView: View {
 
                 // Accolades section
                 VStack(alignment: .leading, spacing: HappySpacing.sm) {
-                    HStack {
-                        HappySectionLabel(text: "Tour Card")
-                        Spacer()
-                        Button {
-                            showClaimAccolade = true
-                        } label: {
-                            Image(systemName: "plus")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.happyGreen)
-                        }
-                    }
+                    HappySectionLabel(text: "Tour Card")
                     if myAccolades.isEmpty {
                         Text("Claim your first accolade.")
                             .font(HappyFont.bodyLight(size: 14))
@@ -203,6 +241,21 @@ struct ProfileView: View {
                         }
                     }
                 }
+
+                HappyDivider()
+
+                // Sign Out
+                Button {
+                    Task { await authManager.signOut() }
+                } label: {
+                    Text("Sign Out")
+                        .font(HappyFont.bodyMedium(size: 14))
+                        .foregroundColor(.red.opacity(0.7))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .overlay(Capsule().stroke(Color.red.opacity(0.3), lineWidth: 1))
+                }
+                .buttonStyle(.plain)
             }
             .padding(.horizontal, HappySpacing.xl)
             .padding(.bottom, HappySpacing.section)

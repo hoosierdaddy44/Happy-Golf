@@ -1,13 +1,10 @@
 import SwiftUI
-import AuthenticationServices
-import CryptoKit
 
 struct WelcomeView: View {
     @EnvironmentObject var authManager: AuthManager
     @State private var appear = false
     @State private var showEmailAuth = false
     @State private var showDevLogin = false
-    @State private var nonce: String = ""
 
     var body: some View {
         ZStack {
@@ -38,11 +35,12 @@ struct WelcomeView: View {
                         .padding(.bottom, 24)
 
                     // Eyebrow
-                    Text("Golf with people you actually like")
+                    Text("Where your round becomes your network")
                         .font(HappyFont.bodyMedium(size: 12))
-                        .tracking(2.0)
+                        .tracking(1.6)
                         .textCase(.uppercase)
                         .foregroundColor(.happyGreenLight)
+                        .multilineTextAlignment(.center)
                         .opacity(appear ? 1 : 0)
                         .offset(y: appear ? 0 : 18)
                         .animation(HappyAnimation.pageLoad.delay(0.09), value: appear)
@@ -50,18 +48,13 @@ struct WelcomeView: View {
 
                     // Hero headline
                     VStack(spacing: 0) {
-                        Text("Doesn't that make")
-                            .font(HappyFont.displayHeadline(size: 42))
+                        Text("Golf on your")
+                            .font(HappyFont.displayHeadline(size: 44))
                             .foregroundColor(.happyGreen)
                             .lineSpacing(2)
-                        HStack(spacing: 0) {
-                            Text("you ")
-                                .font(HappyFont.displayHeadline(size: 42))
-                                .foregroundColor(.happyGreen)
-                            Text("happy?")
-                                .font(HappyFont.displayHeadlineItalic(size: 42))
-                                .foregroundColor(.happyGreenLight)
-                        }
+                        Text("terms.")
+                            .font(HappyFont.displayHeadlineItalic(size: 44))
+                            .foregroundColor(.happyGreenLight)
                     }
                     .multilineTextAlignment(.center)
                     .opacity(appear ? 1 : 0)
@@ -80,7 +73,7 @@ struct WelcomeView: View {
                         .padding(.bottom, 24)
 
                     // Description
-                    Text("A private network for curated golf rounds. Play with people who match your skill, pace, and vibe — and build a reputation that opens better doors.")
+                    Text("Golf is the best networking you're not using. Play with people who match your skill, pace, and vibe — and build a reputation that opens better doors.")
                         .font(HappyFont.bodyLight(size: 15))
                         .foregroundColor(.happyMuted)
                         .multilineTextAlignment(.center)
@@ -94,28 +87,24 @@ struct WelcomeView: View {
                     // Auth CTAs
                     VStack(spacing: HappySpacing.sm) {
                         // Sign in with Apple
-                        SignInWithAppleButton(.continue) { request in
-                            nonce = randomNonceString()
-                            request.requestedScopes = [.fullName, .email]
-                            request.nonce = sha256(nonce)
-                        } onCompletion: { result in
-                            switch result {
-                            case .success(let auth):
-                                guard
-                                    let cred = auth.credential as? ASAuthorizationAppleIDCredential,
-                                    let tokenData = cred.identityToken,
-                                    let idToken = String(data: tokenData, encoding: .utf8)
-                                else { return }
-                                Task {
-                                    await authManager.signInWithApple(idToken: idToken, nonce: nonce)
-                                }
-                            case .failure:
-                                break
+                        Button {
+                            authManager.startAppleSignIn()
+                        } label: {
+                            HStack(spacing: 10) {
+                                Image(systemName: "applelogo")
+                                    .font(.system(size: 17, weight: .semibold))
+                                Text("Sign in with Apple")
+                                    .font(.system(size: 17, weight: .semibold))
                             }
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 52)
+                            .background(Color.black)
+                            .cornerRadius(12)
                         }
-                        .signInWithAppleButtonStyle(.black)
-                        .frame(height: 52)
-                        .cornerRadius(HappyRadius.pill)
+                        .buttonStyle(.plain)
+                        .opacity(appear ? 1 : 0)
+                        .animation(HappyAnimation.pageLoad.delay(0.45), value: appear)
 
                         // Divider
                         HStack(spacing: HappySpacing.sm) {
@@ -123,6 +112,9 @@ struct WelcomeView: View {
                             Text("or").font(HappyFont.metaSmall).foregroundColor(.happyMuted)
                             Rectangle().fill(Color.happySandLight).frame(height: 1)
                         }
+                        .opacity(appear ? 1 : 0)
+                        .offset(y: appear ? 0 : 16)
+                        .animation(HappyAnimation.pageLoad.delay(0.48), value: appear)
 
                         // Email magic link
                         Button {
@@ -137,6 +129,9 @@ struct WelcomeView: View {
                                 .overlay(Capsule().stroke(Color.happySand, lineWidth: 1))
                         }
                         .buttonStyle(HappyButtonPressStyle())
+                        .opacity(appear ? 1 : 0)
+                        .offset(y: appear ? 0 : 16)
+                        .animation(HappyAnimation.pageLoad.delay(0.51), value: appear)
 
                         Text("Limited NYC & South Florida beta · Members approved individually")
                             .font(.system(size: 11))
@@ -144,11 +139,10 @@ struct WelcomeView: View {
                             .tracking(0.3)
                             .multilineTextAlignment(.center)
                             .padding(.top, 4)
+                            .opacity(appear ? 1 : 0)
+                            .animation(HappyAnimation.pageLoad.delay(0.54), value: appear)
                     }
                     .padding(.horizontal, HappySpacing.xl)
-                    .opacity(appear ? 1 : 0)
-                    .offset(y: appear ? 0 : 16)
-                    .animation(HappyAnimation.pageLoad.delay(0.45), value: appear)
 
                     Spacer().frame(height: 32)
 
@@ -196,6 +190,19 @@ struct WelcomeView: View {
         .sheet(isPresented: $showDevLogin) {
             DevLoginView()
         }
+        .overlay(alignment: .top) {
+            if let error = authManager.error {
+                Text(error)
+                    .font(.system(size: 12))
+                    .foregroundColor(.white)
+                    .padding(12)
+                    .background(Color.red.opacity(0.9))
+                    .cornerRadius(8)
+                    .padding(.top, 60)
+                    .padding(.horizontal, 20)
+                    .allowsHitTesting(false)
+            }
+        }
         .overlay {
             if authManager.isLoading {
                 ZStack {
@@ -209,34 +216,6 @@ struct WelcomeView: View {
         }
     }
 
-    // MARK: - Apple Sign In Helpers
-
-    private func randomNonceString(length: Int = 32) -> String {
-        let charset = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
-        var result = ""
-        var remainingLength = length
-        while remainingLength > 0 {
-            let randoms: [UInt8] = (0..<16).map { _ in
-                var random: UInt8 = 0
-                _ = SecRandomCopyBytes(kSecRandomDefault, 1, &random)
-                return random
-            }
-            randoms.forEach { random in
-                if remainingLength == 0 { return }
-                if random < charset.count {
-                    result.append(charset[Int(random)])
-                    remainingLength -= 1
-                }
-            }
-        }
-        return result
-    }
-
-    private func sha256(_ input: String) -> String {
-        let data = Data(input.utf8)
-        let hash = SHA256.hash(data: data)
-        return hash.compactMap { String(format: "%02x", $0) }.joined()
-    }
 }
 
 #Preview {

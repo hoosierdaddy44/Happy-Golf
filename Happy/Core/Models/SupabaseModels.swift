@@ -4,9 +4,51 @@ import Foundation
 // These Codable structs match the database schema exactly.
 // They are converted to the app's model types after fetching.
 
+struct ProfileInsert: Encodable {
+    let id: UUID
+    let name: String
+    let username: String
+    let handicapIndex: Double
+    let industry: String
+    let pacePreference: String
+    let homeCourses: [String]
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, username, industry
+        case handicapIndex  = "handicap_index"
+        case pacePreference = "pace_preference"
+        case homeCourses    = "home_courses"
+    }
+}
+
+struct TeeTimeInsert: Encodable {
+    let hostId: UUID
+    let courseName: String
+    let location: String
+    let teeDate: String
+    let teeTime: String
+    let openSpots: Int
+    let carryMode: String
+    let tees: String?
+    let notes: String?
+
+    enum CodingKeys: String, CodingKey {
+        case hostId     = "host_id"
+        case courseName = "course_name"
+        case location
+        case teeDate    = "tee_date"
+        case teeTime    = "tee_time"
+        case openSpots  = "open_spots"
+        case carryMode  = "carry_mode"
+        case tees
+        case notes
+    }
+}
+
 struct ProfileRow: Codable {
     let id: UUID
     let name: String
+    let username: String?
     let handicapIndex: Double?
     let industry: String?
     let homeCourses: [String]
@@ -15,10 +57,12 @@ struct ProfileRow: Codable {
     let roundsPlayed: Int
     let rating: Double?
     let ratingCount: Int?
+    let avatarUrl: String?
 
     enum CodingKeys: String, CodingKey {
         case id
         case name
+        case username
         case handicapIndex   = "handicap_index"
         case industry
         case homeCourses     = "home_courses"
@@ -27,12 +71,14 @@ struct ProfileRow: Codable {
         case roundsPlayed    = "rounds_played"
         case rating
         case ratingCount     = "rating_count"
+        case avatarUrl       = "avatar_url"
     }
 
     func toUser() -> User {
         User(
             id: id,
             name: name,
+            username: username ?? "",
             handicapIndex: handicapIndex ?? 0,
             industry: industry ?? "",
             pacePreference: PacePref(rawValue: pacePreference.capitalized) ?? .standard,
@@ -53,7 +99,9 @@ struct TeeTimeRow: Codable {
     let teeTime: String      // "07:24:00"
     let openSpots: Int
     let carryMode: String
+    let tees: String?
     let notes: String?
+    let score: Int?
     let createdAt: Date
 
     enum CodingKeys: String, CodingKey {
@@ -65,7 +113,9 @@ struct TeeTimeRow: Codable {
         case teeTime     = "tee_time"
         case openSpots   = "open_spots"
         case carryMode   = "carry_mode"
+        case tees
         case notes
+        case score
         case createdAt   = "created_at"
     }
 
@@ -82,8 +132,10 @@ struct TeeTimeRow: Codable {
             openSpots: openSpots,
             totalSpots: openSpots + 1 + approvedPlayerIds.count,
             carryMode: CarryMode(rawValue: carryMode.capitalized) ?? .walking,
+            tees: tees,
             notes: notes,
             players: approvedPlayerIds,
+            score: score,
             createdAt: createdAt
         )
     }
@@ -223,6 +275,32 @@ struct ActivityEventRow: Codable {
             type: ActivityType(rawValue: type) ?? .newTeeTime,
             actorId: actorId,
             teeTimeId: teeTimeId,
+            createdAt: createdAt
+        )
+    }
+}
+
+struct FriendshipRow: Codable {
+    let id: UUID
+    let requesterId: UUID
+    let addresseeId: UUID
+    let status: String
+    let createdAt: Date
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case requesterId = "requester_id"
+        case addresseeId = "addressee_id"
+        case status
+        case createdAt   = "created_at"
+    }
+
+    func toFriendship() -> Friendship {
+        Friendship(
+            id: id,
+            requesterId: requesterId,
+            addresseeId: addresseeId,
+            status: FriendshipStatus(rawValue: status) ?? .pending,
             createdAt: createdAt
         )
     }

@@ -10,10 +10,16 @@ struct TeeTime: Identifiable, Hashable {
     var openSpots: Int
     var totalSpots: Int
     var carryMode: CarryMode
+    var tees: String?
     var notes: String?
     var players: [UUID]
     var requests: [UUID]
+    var score: Int?
     let createdAt: Date
+
+    var isCompleted: Bool { date < Date() }
+
+    var par: Int { 72 } // default par, can be extended later
 
     var confirmedPlayerIds: [UUID] {
         [hostId] + players
@@ -37,9 +43,11 @@ struct TeeTime: Identifiable, Hashable {
         openSpots: Int,
         totalSpots: Int,
         carryMode: CarryMode = .walking,
+        tees: String? = nil,
         notes: String? = nil,
         players: [UUID] = [],
         requests: [UUID] = [],
+        score: Int? = nil,
         createdAt: Date = Date()
     ) {
         self.id = id
@@ -51,9 +59,11 @@ struct TeeTime: Identifiable, Hashable {
         self.openSpots = openSpots
         self.totalSpots = totalSpots
         self.carryMode = carryMode
+        self.tees = tees
         self.notes = notes
         self.players = players
         self.requests = requests
+        self.score = score
         self.createdAt = createdAt
     }
 }

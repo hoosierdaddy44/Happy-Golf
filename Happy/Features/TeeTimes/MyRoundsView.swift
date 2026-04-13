@@ -4,6 +4,7 @@ struct MyRoundsView: View {
     @EnvironmentObject var appState: AppState
     @State private var tab = 0
     @State private var selectedMemberId: UUID?
+    @State private var scoreSheetTeeTime: TeeTime?
 
     private var hostedRounds: [TeeTime] {
         guard let user = appState.currentUser else { return [] }
@@ -62,6 +63,10 @@ struct MyRoundsView: View {
             set: { selectedMemberId = $0?.id }
         )) { wrapper in
             MemberProfileView(userId: wrapper.id).environmentObject(appState)
+        }
+        .sheet(item: $scoreSheetTeeTime) { tt in
+            ScoreEntrySheet(teeTime: tt)
+                .environmentObject(appState)
         }
     }
 
@@ -135,36 +140,72 @@ struct MyRoundsView: View {
     // MARK: - Sub-components
 
     private func roundRow(_ tt: TeeTime, role: String) -> some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(tt.courseName)
-                    .font(HappyFont.displayMedium(size: 18))
-                    .foregroundColor(.happyGreen)
-                HStack(spacing: 6) {
-                    Text(tt.dateDisplay)
-                    Text("·")
-                    Text(tt.teeTimeString)
+        VStack(alignment: .leading, spacing: HappySpacing.sm) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(tt.courseName)
+                        .font(HappyFont.displayMedium(size: 18))
+                        .foregroundColor(.happyGreen)
+                    HStack(spacing: 6) {
+                        Text(tt.dateDisplay)
+                        Text("·")
+                        Text(tt.teeTimeString)
+                        if let tees = tt.tees {
+                            Text("·")
+                            Text(tees)
+                        }
+                    }
+                    .font(HappyFont.metaSmall)
+                    .foregroundColor(.happyMuted)
                 }
-                .font(HappyFont.metaSmall)
-                .foregroundColor(.happyMuted)
-            }
-            Spacer()
-            if role == "Host" {
-                HappySpotsBadge(count: tt.openSpots)
-            } else {
-                Text(role)
-                    .font(HappyFont.bodyMedium(size: 11))
-                    .foregroundColor(.happyGreenLight)
-                    .padding(.vertical, 4)
-                    .padding(.horizontal, 10)
-                    .background(Color.happyGreenLight.opacity(0.1))
-                    .clipShape(Capsule())
+                Spacer()
+                if tt.isCompleted {
+                    if let score = tt.score {
+                        scoreDisplay(score: score)
+                    } else {
+                        Button { scoreSheetTeeTime = tt } label: {
+                            Text("Log Score")
+                                .font(HappyFont.bodyMedium(size: 11))
+                                .foregroundColor(.happyGreen)
+                                .padding(.vertical, 4)
+                                .padding(.horizontal, 10)
+                                .overlay(Capsule().stroke(Color.happyGreen, lineWidth: 1))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                } else if role == "Host" {
+                    HappySpotsBadge(count: tt.openSpots)
+                } else {
+                    Text("Confirmed")
+                        .font(HappyFont.bodyMedium(size: 11))
+                        .foregroundColor(.happyGreenLight)
+                        .padding(.vertical, 4)
+                        .padding(.horizontal, 10)
+                        .background(Color.happyGreenLight.opacity(0.1))
+                        .clipShape(Capsule())
+                }
             }
         }
         .padding(HappySpacing.md)
         .background(Color.happyWhite)
         .cornerRadius(HappyRadius.card)
         .overlay(RoundedRectangle(cornerRadius: HappyRadius.card).stroke(Color.happySandLight, lineWidth: 1))
+    }
+
+    private func scoreDisplay(score: Int) -> some View {
+        VStack(alignment: .trailing, spacing: 2) {
+            Text("\(score)")
+                .font(HappyFont.displayMedium(size: 22))
+                .foregroundColor(.happyGreen)
+            if let me = appState.currentUser {
+                let net = score - Int(me.handicapIndex)
+                let diff = net - 72
+                let diffStr = diff > 0 ? "+\(diff)" : "\(diff)"
+                Text("Net \(net) (\(diffStr))")
+                    .font(HappyFont.metaTiny)
+                    .foregroundColor(.happyMuted)
+            }
+        }
     }
 
     private func emptyMessage(_ text: String) -> some View {

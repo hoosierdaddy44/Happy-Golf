@@ -11,18 +11,60 @@ struct DiscoveryView: View {
         case week  = "This Week"
     }
 
-    private var visibleRounds: [TeeTime] {
+    private func filtered(_ rounds: [TeeTime]) -> [TeeTime] {
         let cal = Calendar.current
         let now = Date()
-        return appState.teeTimes.filter { tt in
-            guard !tt.isFull else { return false }
-            if let user = appState.currentUser, tt.hostId == user.id { return false }
+        return rounds.filter { tt in
             switch filter {
             case .all:   return true
             case .today: return cal.isDateInToday(tt.date)
             case .week:  return tt.date <= cal.date(byAdding: .day, value: 7, to: now)!
             }
         }
+    }
+
+    private var openRounds: [TeeTime] {
+        guard let me = appState.currentUser else { return [] }
+        return appState.teeTimes.filter { !$0.isFull && $0.hostId != me.id }
+    }
+
+    private var friendRounds: [TeeTime] {
+        let ids = appState.friendIds
+        return filtered(openRounds.filter { ids.contains($0.hostId) || $0.players.contains(where: { ids.contains($0) }) })
+    }
+
+    private var forYouRounds: [TeeTime] {
+        let ids = appState.friendIds
+        let me = appState.currentUser
+        return filtered(openRounds.filter { tt in
+            guard !ids.contains(tt.hostId) && !tt.players.contains(where: { ids.contains($0) }) else { return false }
+            if let me = me, let host = appState.profileCache[tt.hostId] {
+                return abs(host.handicapIndex - me.handicapIndex) <= 6
+            }
+            return true
+        })
+    }
+
+    private var friendsEmptyState: some View {
+        HStack(spacing: HappySpacing.md) {
+            Image(systemName: "person.2")
+                .font(.system(size: 22))
+                .foregroundColor(.happySand)
+            VStack(alignment: .leading, spacing: 3) {
+                Text("No friends' rounds yet.")
+                    .font(HappyFont.bodyMedium(size: 13))
+                    .foregroundColor(.happyBlack)
+                Text("Join a round below to meet members and grow your network.")
+                    .font(HappyFont.bodyLight(size: 12))
+                    .foregroundColor(.happyMuted)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer()
+        }
+        .padding(HappySpacing.md)
+        .background(Color.happyWhite)
+        .cornerRadius(HappyRadius.card)
+        .overlay(RoundedRectangle(cornerRadius: HappyRadius.card).stroke(Color.happySandLight, lineWidth: 1))
     }
 
     var body: some View {
@@ -33,21 +75,52 @@ struct DiscoveryView: View {
                 VStack(spacing: 0) {
                     navHeader
 
-                    if visibleRounds.isEmpty {
-                        emptyState
-                    } else {
-                        ScrollView(showsIndicators: false) {
-                            LazyVStack(spacing: HappySpacing.md) {
-                                ForEach(visibleRounds) { tt in
-                                    TeeTimeCard(teeTime: tt)
-                                        .contentShape(Rectangle())
-                                        .onTapGesture { selectedTeeTime = tt }
+                    ScrollView(showsIndicators: false) {
+                        LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
+                            // Friends' Rounds — always visible
+                            Section {
+                                if friendRounds.isEmpty {
+                                    friendsEmptyState
+                                        .padding(.horizontal, HappySpacing.xl)
+                                        .padding(.bottom, HappySpacing.md)
+                                } else {
+                                    ForEach(friendRounds) { tt in
+                                        TeeTimeCard(teeTime: tt)
+                                            .padding(.horizontal, HappySpacing.xl)
+                                            .padding(.bottom, HappySpacing.md)
+                                            .contentShape(Rectangle())
+                                            .onTapGesture { selectedTeeTime = tt }
+                                    }
                                 }
+                            } header: {
+                                sectionHeader("Friends' Rounds", icon: "person.2.fill")
                             }
-                            .padding(.horizontal, HappySpacing.xl)
-                            .padding(.top, HappySpacing.md)
-                            .padding(.bottom, HappySpacing.section)
+
+                            // Open Rounds — expand your network
+                            Section {
+                                if forYouRounds.isEmpty {
+                                    Text("No open rounds right now.")
+                                        .font(HappyFont.bodyLight(size: 14))
+                                        .foregroundColor(.happyMuted)
+                                        .italic()
+                                        .padding(.horizontal, HappySpacing.xl)
+                                        .padding(.bottom, HappySpacing.md)
+                                } else {
+                                    ForEach(forYouRounds) { tt in
+                                        TeeTimeCard(teeTime: tt)
+                                            .padding(.horizontal, HappySpacing.xl)
+                                            .padding(.bottom, HappySpacing.md)
+                                            .contentShape(Rectangle())
+                                            .onTapGesture { selectedTeeTime = tt }
+                                    }
+                                }
+                            } header: {
+                                sectionHeader("Expand Your Network", icon: "magnifyingglass")
+                            }
+
+                            Spacer().frame(height: HappySpacing.section)
                         }
+                        .padding(.top, HappySpacing.md)
                     }
                 }
             }
@@ -57,14 +130,28 @@ struct DiscoveryView: View {
         }
     }
 
-    // MARK: - Nav Header
+    private func sectionHeader(_ title: String, icon: String) -> some View {
+        HStack(spacing: HappySpacing.xs) {
+            Image(systemName: icon)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundColor(.happyGreenLight)
+            Text(title.uppercased())
+                .font(HappyFont.formLabel)
+                .tracking(1.4)
+                .foregroundColor(.happyGreenLight)
+            Spacer()
+        }
+        .padding(.horizontal, HappySpacing.xl)
+        .padding(.vertical, HappySpacing.sm)
+        .background(Color.happyCream)
+    }
 
     private var navHeader: some View {
         VStack(alignment: .leading, spacing: HappySpacing.md) {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
                     HappySectionLabel(text: "Happy Golf")
-                    Text("Open Rounds")
+                    Text("Discover")
                         .font(HappyFont.displayHeadline(size: 34))
                         .foregroundColor(.happyGreen)
                 }
@@ -78,7 +165,6 @@ struct DiscoveryView: View {
                 }
             }
 
-            // Filters
             HStack(spacing: HappySpacing.xs) {
                 ForEach(DateFilter.allCases, id: \.self) { f in
                     filterPill(f)
@@ -110,20 +196,6 @@ struct DiscoveryView: View {
         .buttonStyle(.plain)
     }
 
-    private var emptyState: some View {
-        VStack(spacing: HappySpacing.md) {
-            Spacer()
-            Text("⛳")
-                .font(.system(size: 52))
-            Text("No open rounds")
-                .font(HappyFont.displayMedium(size: 24))
-                .foregroundColor(.happyGreen)
-            Text("Be the first to host one.")
-                .font(HappyFont.bodyLight())
-                .foregroundColor(.happyMuted)
-            Spacer()
-        }
-    }
 }
 
 // MARK: - Round Card
@@ -137,12 +209,9 @@ struct TeeTimeCard: View {
     var body: some View {
         ZStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 0) {
-
-                // Gold tag
                 HappyBadge(text: "⛳ Happy Round", style: .gold)
                     .padding(.bottom, HappySpacing.md)
 
-                // Course + spots
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 3) {
                         Text(teeTime.courseName)
@@ -160,7 +229,6 @@ struct TeeTimeCard: View {
                 HappyDivider()
                     .padding(.bottom, HappySpacing.md)
 
-                // Meta
                 HStack(spacing: HappySpacing.md) {
                     HappyMetaItem(emoji: "📅", label: teeTime.dateDisplay)
                     HappyMetaItem(emoji: "⏰", label: teeTime.teeTimeString)
@@ -169,7 +237,6 @@ struct TeeTimeCard: View {
                 }
                 .padding(.bottom, HappySpacing.md)
 
-                // Host row
                 if let host = host {
                     HStack(spacing: 8) {
                         HappyAvatar(user: host, size: 26)
@@ -195,7 +262,6 @@ struct TeeTimeCard: View {
             )
             .shadow(color: Color.happyGreen.opacity(0.07), radius: 20, y: 8)
 
-            // Signature top gradient bar
             HappyGradient.cardTopBar
                 .frame(height: 3)
                 .cornerRadius(HappyRadius.cardLarge, corners: [.topLeft, .topRight])

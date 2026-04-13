@@ -3,12 +3,14 @@ import SwiftUI
 struct User: Identifiable, Equatable {
     let id: UUID
     var name: String
+    var username: String
     var handicapIndex: Double
     var industry: String
     var interests: [String]
     var pacePreference: PacePref
     var homeCourses: [String]
     var avatarColor: Color
+    var avatarImageData: Data?
     let joinedAt: Date
     var rating: Double?
     var ratingCount: Int
@@ -31,24 +33,28 @@ struct User: Identifiable, Equatable {
     init(
         id: UUID = UUID(),
         name: String,
+        username: String = "",
         handicapIndex: Double,
         industry: String,
         interests: [String] = [],
         pacePreference: PacePref = .standard,
         homeCourses: [String] = [],
         avatarColor: Color = .happyGreen,
+        avatarImageData: Data? = nil,
         joinedAt: Date = Date(),
         rating: Double? = nil,
         ratingCount: Int = 0
     ) {
         self.id = id
         self.name = name
+        self.username = username
         self.handicapIndex = handicapIndex
         self.industry = industry
         self.interests = interests
         self.pacePreference = pacePreference
         self.homeCourses = homeCourses
         self.avatarColor = avatarColor
+        self.avatarImageData = avatarImageData
         self.joinedAt = joinedAt
         self.rating = rating
         self.ratingCount = ratingCount

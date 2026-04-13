@@ -5,8 +5,17 @@ struct TeeTimeDetailView: View {
     @EnvironmentObject var appState: AppState
     @Environment(\.dismiss) var dismiss
 
-    @State private var showJoinSheet = false
-    @State private var selectedMemberId: UUID?
+    enum Sheet: Identifiable {
+        case memberProfile(UUID)
+        case joinRequest
+        var id: String {
+            switch self {
+            case .memberProfile(let uid): return "member_\(uid)"
+            case .joinRequest: return "joinRequest"
+            }
+        }
+    }
+    @State private var activeSheet: Sheet?
 
     private var host: User? { appState.user(for: teeTime.hostId) }
     private var confirmedPlayers: [User] { teeTime.confirmedPlayerIds.compactMap { appState.user(for: $0) } }
@@ -27,14 +36,13 @@ struct TeeTimeDetailView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(item: Binding(
-            get: { selectedMemberId.map { MemberIDWrapper(id: $0) } },
-            set: { selectedMemberId = $0?.id }
-        )) { wrapper in
-            MemberProfileView(userId: wrapper.id).environmentObject(appState)
-        }
-        .sheet(isPresented: $showJoinSheet) {
-            JoinRequestSheet(teeTime: teeTime)
+        .sheet(item: $activeSheet) { sheet in
+            switch sheet {
+            case .memberProfile(let uid):
+                MemberProfileView(userId: uid).environmentObject(appState)
+            case .joinRequest:
+                JoinRequestSheet(teeTime: teeTime).environmentObject(appState)
+            }
         }
     }
 
@@ -118,7 +126,9 @@ struct TeeTimeDetailView: View {
     }
 
     private func playerRow(_ player: User) -> some View {
-        Button { selectedMemberId = player.id } label: {
+        Button {
+            activeSheet = .memberProfile(player.id)
+        } label: {
             HStack(spacing: 11) {
                 HappyAvatar(user: player, size: 38)
                 VStack(alignment: .leading, spacing: 2) {
@@ -147,6 +157,7 @@ struct TeeTimeDetailView: View {
                     .overlay(Capsule().stroke(Color.happyGreenLight.opacity(0.15), lineWidth: 1))
                     .clipShape(Capsule())
             }
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
@@ -187,7 +198,7 @@ struct TeeTimeDetailView: View {
                     }
                 } else {
                     HappyPrimaryButton(title: "Request to Join →", fullWidth: true) {
-                        showJoinSheet = true
+                        activeSheet = .joinRequest
                     }
                 }
             }
