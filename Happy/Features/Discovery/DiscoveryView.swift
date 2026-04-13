@@ -4,6 +4,7 @@ struct DiscoveryView: View {
     @EnvironmentObject var appState: AppState
     @State private var filter: DateFilter = .all
     @State private var selectedTeeTime: TeeTime?
+    @State private var showPlayerSearch = false
 
     enum DateFilter: String, CaseIterable {
         case all   = "All"
@@ -43,6 +44,14 @@ struct DiscoveryView: View {
             }
             return true
         })
+    }
+
+    private var completedRounds: [TeeTime] {
+        appState.teeTimes
+            .filter { $0.isCompleted }
+            .sorted { $0.date > $1.date }
+            .prefix(10)
+            .map { $0 }
     }
 
     private var friendsEmptyState: some View {
@@ -118,6 +127,19 @@ struct DiscoveryView: View {
                                 sectionHeader("Expand Your Network", icon: "magnifyingglass")
                             }
 
+                            // Recently Played
+                            if !completedRounds.isEmpty {
+                                Section {
+                                    ForEach(completedRounds) { tt in
+                                        CompletedRoundCard(teeTime: tt)
+                                            .padding(.horizontal, HappySpacing.xl)
+                                            .padding(.bottom, HappySpacing.sm)
+                                    }
+                                } header: {
+                                    sectionHeader("Recently Played", icon: "flag.checkered")
+                                }
+                            }
+
                             Spacer().frame(height: HappySpacing.section)
                         }
                         .padding(.top, HappySpacing.md)
@@ -126,6 +148,9 @@ struct DiscoveryView: View {
             }
             .navigationDestination(item: $selectedTeeTime) { tt in
                 TeeTimeDetailView(teeTime: tt)
+            }
+            .sheet(isPresented: $showPlayerSearch) {
+                PlayerSearchView().environmentObject(appState)
             }
         }
     }
@@ -156,13 +181,21 @@ struct DiscoveryView: View {
                         .foregroundColor(.happyGreen)
                 }
                 Spacer()
-                ZStack {
-                    RoundedRectangle(cornerRadius: HappyRadius.icon)
-                        .fill(Color.happyGreen)
-                        .frame(width: 38, height: 38)
-                    Text("⛳")
-                        .font(.system(size: 19))
+                Button { showPlayerSearch = true } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "person.badge.plus")
+                            .font(.system(size: 14, weight: .medium))
+                        Text("Find Players")
+                            .font(HappyFont.bodyMedium(size: 13))
+                    }
+                    .foregroundColor(.happyGreen)
+                    .padding(.horizontal, HappySpacing.md)
+                    .padding(.vertical, 8)
+                    .background(Color.happyWhite)
+                    .cornerRadius(HappyRadius.pill)
+                    .overlay(Capsule().stroke(Color.happySand, lineWidth: 1))
                 }
+                .buttonStyle(.plain)
             }
 
             HStack(spacing: HappySpacing.xs) {
@@ -205,24 +238,35 @@ struct TeeTimeCard: View {
     @EnvironmentObject var appState: AppState
 
     private var host: User? { appState.user(for: teeTime.hostId) }
+    private var confirmedUsers: [User] {
+        teeTime.confirmedPlayerIds.compactMap { appState.user(for: $0) }
+    }
+    private var hasFriend: Bool {
+        let friends = appState.friendIds
+        return friends.contains(teeTime.hostId) || teeTime.players.contains(where: { friends.contains($0) })
+    }
 
     var body: some View {
         ZStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 0) {
-                HappyBadge(text: "⛳ Happy Round", style: .gold)
-                    .padding(.bottom, HappySpacing.md)
-
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(teeTime.courseName)
-                            .font(HappyFont.cardTitle)
-                            .foregroundColor(.happyGreen)
-                        Text(teeTime.courseLocation)
-                            .font(HappyFont.metaSmall)
-                            .foregroundColor(.happyMuted)
+                // Top row: badge + friend indicator + spots
+                HStack {
+                    HappyBadge(text: "⛳ Happy Round", style: .gold)
+                    if hasFriend {
+                        HappyBadge(text: "🤝 Friend", style: .friend)
                     }
                     Spacer()
                     HappySpotsBadge(count: teeTime.openSpots)
+                }
+                .padding(.bottom, HappySpacing.md)
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(teeTime.courseName)
+                        .font(HappyFont.cardTitle)
+                        .foregroundColor(.happyGreen)
+                    Text(teeTime.courseLocation)
+                        .font(HappyFont.metaSmall)
+                        .foregroundColor(.happyMuted)
                 }
                 .padding(.bottom, HappySpacing.md)
 
@@ -237,20 +281,26 @@ struct TeeTimeCard: View {
                 }
                 .padding(.bottom, HappySpacing.md)
 
-                if let host = host {
-                    HStack(spacing: 8) {
-                        HappyAvatar(user: host, size: 26)
-                        Text(host.name)
-                            .font(HappyFont.bodyMedium(size: 12))
-                            .foregroundColor(.happyBlack)
-                        Text("· HCP \(host.handicapDisplay)")
-                            .font(HappyFont.metaTiny)
-                            .foregroundColor(.happyMuted)
-                        Spacer()
-                        Text("View Round →")
-                            .font(HappyFont.bodyMedium(size: 12))
-                            .foregroundColor(.happyGreen)
+                HappyDivider()
+                    .padding(.bottom, HappySpacing.md)
+
+                // Players row
+                HStack(spacing: 8) {
+                    StackedAvatars(users: confirmedUsers, size: 28)
+                    if let host = host {
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(host.name)
+                                .font(HappyFont.bodyMedium(size: 12))
+                                .foregroundColor(.happyBlack)
+                            Text("HCP \(host.handicapDisplay) · \(host.pacePreference.rawValue)")
+                                .font(HappyFont.metaTiny)
+                                .foregroundColor(.happyMuted)
+                        }
                     }
+                    Spacer()
+                    Text("View Round →")
+                        .font(HappyFont.bodyMedium(size: 12))
+                        .foregroundColor(.happyGreen)
                 }
             }
             .padding(HappySpacing.xl)
@@ -266,6 +316,96 @@ struct TeeTimeCard: View {
                 .frame(height: 3)
                 .cornerRadius(HappyRadius.cardLarge, corners: [.topLeft, .topRight])
         }
+    }
+}
+
+// MARK: - Stacked Avatars
+
+struct StackedAvatars: View {
+    let users: [User]
+    let size: CGFloat
+    private let maxVisible = 4
+    private let overlap: CGFloat = 10
+
+    var body: some View {
+        let visible = Array(users.prefix(maxVisible))
+        let extra = users.count - maxVisible
+
+        HStack(spacing: 0) {
+            ZStack {
+                ForEach(Array(visible.enumerated()), id: \.element.id) { idx, user in
+                    HappyAvatar(user: user, size: size)
+                        .overlay(Circle().stroke(Color.happyWhite, lineWidth: 1.5))
+                        .offset(x: CGFloat(idx) * (size - overlap))
+                }
+                if extra > 0 {
+                    Text("+\(extra)")
+                        .font(HappyFont.bodyMedium(size: 9))
+                        .foregroundColor(.happyWhite)
+                        .frame(width: size, height: size)
+                        .background(Color.happyGreenLight)
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(Color.happyWhite, lineWidth: 1.5))
+                        .offset(x: CGFloat(visible.count) * (size - overlap))
+                }
+            }
+            .frame(width: size + CGFloat(min(users.count, maxVisible + 1) - 1) * (size - overlap), height: size)
+        }
+    }
+}
+
+// MARK: - Completed Round Card
+
+struct CompletedRoundCard: View {
+    let teeTime: TeeTime
+    @EnvironmentObject var appState: AppState
+
+    private var host: User? { appState.user(for: teeTime.hostId) }
+    private var confirmedUsers: [User] {
+        teeTime.confirmedPlayerIds.compactMap { appState.user(for: $0) }
+    }
+
+    var body: some View {
+        HStack(spacing: HappySpacing.md) {
+            StackedAvatars(users: confirmedUsers, size: 34)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(teeTime.courseName)
+                    .font(HappyFont.bodyMedium(size: 14))
+                    .foregroundColor(.happyBlack)
+                HStack(spacing: 4) {
+                    Text(teeTime.dateDisplay)
+                        .font(HappyFont.metaTiny)
+                        .foregroundColor(.happyMuted)
+                    if let host = host {
+                        Text("· \(host.name)")
+                            .font(HappyFont.metaTiny)
+                            .foregroundColor(.happyMuted)
+                    }
+                }
+            }
+
+            Spacer()
+
+            if let score = teeTime.score {
+                VStack(alignment: .trailing, spacing: 1) {
+                    Text("\(score)")
+                        .font(HappyFont.displayMedium(size: 20))
+                        .foregroundColor(.happyGreen)
+                    Text("strokes")
+                        .font(HappyFont.metaTiny)
+                        .foregroundColor(.happyMuted)
+                }
+            } else {
+                Image(systemName: "flag.checkered")
+                    .font(.system(size: 16))
+                    .foregroundColor(.happySand)
+            }
+        }
+        .padding(HappySpacing.md)
+        .background(Color.happyWhite)
+        .cornerRadius(HappyRadius.card)
+        .overlay(RoundedRectangle(cornerRadius: HappyRadius.card).stroke(Color.happySandLight, lineWidth: 1))
     }
 }
 

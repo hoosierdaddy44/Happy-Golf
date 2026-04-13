@@ -205,6 +205,13 @@ struct HappyBadgeStyle {
         fontSize: 11,
         letterSpacing: 0.06
     )
+    static let friend = HappyBadgeStyle(
+        background: Color.happyGreen.opacity(0.08),
+        border: Color.happyGreen.opacity(0.2),
+        foreground: .happyGreen,
+        fontSize: 10,
+        letterSpacing: 0.10
+    )
 }
 
 // MARK: - Voice & Tone Constants
