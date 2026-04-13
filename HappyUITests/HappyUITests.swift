@@ -2,7 +2,7 @@ import XCTest
 
 class HappyUITests: XCTestCase {
 
-    let app = XCUIApplication(bundleIdentifier: "com.joinhappygolf.app")
+    let app = XCUIApplication()
 
     override func setUpWithError() throws {
         continueAfterFailure = false
