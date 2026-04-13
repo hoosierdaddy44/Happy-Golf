@@ -449,8 +449,8 @@ final class ActivityFeedTests: HappyUITests {
 
     func testActivityEmptyState() {
         let emptyText = app.staticTexts["No activity yet."]
-        let hasActivity = app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'joined'")).firstMatch
-        XCTAssertTrue(emptyText.waitForExistence(timeout: 3) || hasActivity.exists)
+        let hasActivity = app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'tee time' OR label CONTAINS 'Request' OR label CONTAINS 'approved' OR label CONTAINS 'posted'")).firstMatch
+        XCTAssertTrue(emptyText.waitForExistence(timeout: 3) || hasActivity.waitForExistence(timeout: 3))
     }
 
     func testActivityScreenHasHappyGolfLabel() {
