@@ -4,11 +4,19 @@ struct EmailAuthView: View {
     @EnvironmentObject var authManager: AuthManager
     @Environment(\.dismiss) var dismiss
 
-    @State private var email = ""
-    @State private var sent = false
+    enum Mode { case signIn, createAccount }
+    @State private var mode: Mode = .signIn
 
+    @State private var email = ""
+    @State private var password = ""
+    @State private var confirmPassword = ""
+
+    private var passwordsMatch: Bool { password == confirmPassword }
     private var isValid: Bool {
-        email.contains("@") && email.contains(".")
+        let emailOK = email.contains("@") && email.contains(".")
+        let passwordOK = password.count >= 8
+        if mode == .createAccount { return emailOK && passwordOK && passwordsMatch }
+        return emailOK && passwordOK
     }
 
     var body: some View {
@@ -23,15 +31,93 @@ struct EmailAuthView: View {
                     .padding(.top, HappySpacing.md)
                     .padding(.bottom, HappySpacing.xxl)
 
-                if sent {
-                    sentState
-                } else {
-                    entryState
+                VStack(alignment: .leading, spacing: 0) {
+                    // Mode toggle
+                    HStack(spacing: 2) {
+                        modeTab("Sign In", selected: mode == .signIn) { mode = .signIn }
+                        modeTab("Create Account", selected: mode == .createAccount) { mode = .createAccount }
+                    }
+                    .padding(3)
+                    .background(Color.happySandLight.opacity(0.6))
+                    .cornerRadius(HappyRadius.input + 3)
+                    .padding(.bottom, HappySpacing.xxl)
+
+                    // Headline
+                    Text(mode == .signIn ? "Welcome\nback." : "Join\nHappy.")
+                        .font(HappyFont.displayHeadline(size: 40))
+                        .foregroundColor(.happyGreen)
+                        .lineSpacing(4)
+                        .padding(.bottom, HappySpacing.xs)
+
+                    Text(mode == .signIn ? "Sign in to your account." : "Create your account to get started.")
+                        .font(HappyFont.bodyLight(size: 14))
+                        .foregroundColor(.happyMuted)
+                        .padding(.bottom, HappySpacing.xxl)
+
+                    // Fields
+                    VStack(spacing: HappySpacing.md) {
+                        HappyTextField(
+                            label: "Email Address",
+                            placeholder: "you@example.com",
+                            text: $email,
+                            keyboardType: .emailAddress,
+                            isRequired: true
+                        )
+                        HappyTextField(
+                            label: "Password",
+                            placeholder: mode == .createAccount ? "At least 8 characters" : "Password",
+                            text: $password,
+                            isRequired: true,
+                            isSecure: true
+                        )
+                        if mode == .createAccount {
+                            HappyTextField(
+                                label: "Confirm Password",
+                                placeholder: "Re-enter your password",
+                                text: $confirmPassword,
+                                isRequired: true,
+                                isSecure: true
+                            )
+                            if !confirmPassword.isEmpty && !passwordsMatch {
+                                Text("Passwords don't match.")
+                                    .font(HappyFont.metaSmall)
+                                    .foregroundColor(.red.opacity(0.75))
+                            }
+                        }
+                    }
+                    .padding(.bottom, HappySpacing.xl)
+
+                    if let error = authManager.error {
+                        Text(error)
+                            .font(HappyFont.metaSmall)
+                            .foregroundColor(.red.opacity(0.8))
+                            .padding(.bottom, HappySpacing.md)
+                    }
+
+                    HappyPrimaryButton(
+                        title: mode == .signIn ? "Sign In →" : "Create Account →",
+                        fullWidth: true
+                    ) {
+                        Task {
+                            if mode == .signIn {
+                                await authManager.signIn(email: email, password: password)
+                            } else {
+                                await authManager.signUp(email: email, password: password)
+                            }
+                        }
+                    }
+                    .opacity(isValid ? 1 : 0.4)
+                    .disabled(!isValid)
+
+                    HappyOutlineButton(title: "Cancel", fullWidth: true) {
+                        dismiss()
+                    }
+                    .padding(.top, HappySpacing.xs)
                 }
+                .padding(.horizontal, HappySpacing.xl)
 
                 Spacer()
             }
-            .padding(.horizontal, HappySpacing.xl)
         }
         .overlay {
             if authManager.isLoading {
@@ -39,78 +125,26 @@ struct EmailAuthView: View {
                 ProgressView().tint(.happyGreen).scaleEffect(1.4)
             }
         }
-    }
-
-    private var entryState: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HappySectionLabel(text: "Email Sign In")
-                .padding(.bottom, HappySpacing.md)
-
-            Text("Enter your\nemail.")
-                .font(HappyFont.displayHeadline(size: 40))
-                .foregroundColor(.happyGreen)
-                .lineSpacing(4)
-                .padding(.bottom, HappySpacing.xs)
-
-            Text("We'll send a magic link — no password needed.")
-                .font(HappyFont.bodyLight(size: 14))
-                .foregroundColor(.happyMuted)
-                .padding(.bottom, HappySpacing.xxl)
-
-            HappyTextField(
-                label: "Email Address",
-                placeholder: "you@example.com",
-                text: $email,
-                keyboardType: .emailAddress,
-                isRequired: true
-            )
-            .padding(.bottom, HappySpacing.xl)
-
-            if let error = authManager.error {
-                Text(error)
-                    .font(HappyFont.metaSmall)
-                    .foregroundColor(.red.opacity(0.8))
-                    .padding(.bottom, HappySpacing.md)
-            }
-
-            HappyPrimaryButton(title: "Send Magic Link →", fullWidth: true) {
-                Task { await authManager.sendMagicLink(email: email) }
-                withAnimation { sent = true }
-            }
-            .opacity(isValid ? 1 : 0.4)
-            .disabled(!isValid)
-
-            HappyOutlineButton(title: "Cancel", fullWidth: true) {
-                dismiss()
-            }
-            .padding(.top, HappySpacing.xs)
+        .onChange(of: authManager.isSignedIn) { _, signedIn in
+            if signedIn { dismiss() }
+        }
+        .onChange(of: mode) { _, _ in
+            authManager.error = nil
+            confirmPassword = ""
         }
     }
 
-    private var sentState: some View {
-        VStack(spacing: HappySpacing.xl) {
-            Spacer().frame(height: HappySpacing.section)
-
-            Text("⛳")
-                .font(.system(size: 56))
-
-            VStack(spacing: HappySpacing.sm) {
-                Text("Check your email.")
-                    .font(HappyFont.displayHeadline(size: 32))
-                    .foregroundColor(.happyGreen)
-                    .multilineTextAlignment(.center)
-
-                Text("We sent a magic link to\n\(email)")
-                    .font(HappyFont.bodyLight(size: 15))
-                    .foregroundColor(.happyMuted)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(4)
-            }
-
-            HappyOutlineButton(title: "Back to Sign In") {
-                withAnimation { sent = false }
-            }
+    private func modeTab(_ title: String, selected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(HappyFont.bodyMedium(size: 13))
+                .foregroundColor(selected ? .happyCream : .happyMuted)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 9)
+                .background(selected ? Color.happyGreen : Color.clear)
+                .cornerRadius(HappyRadius.input)
         }
+        .buttonStyle(.plain)
     }
 }
 

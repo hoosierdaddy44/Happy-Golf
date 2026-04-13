@@ -68,7 +68,7 @@ struct DevLoginView: View {
                     }
 
                     HappyPrimaryButton(title: "Sign In →", fullWidth: true) {
-                        Task { await authManager.signInWithPassword(email: email, password: password) }
+                        Task { await authManager.signIn(email: email, password: password) }
                     }
                     .opacity(isValid ? 1 : 0.4)
                     .disabled(!isValid)

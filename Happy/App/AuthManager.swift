@@ -100,22 +100,9 @@ class AuthManager: ObservableObject {
         isLoading = false
     }
 
-    // MARK: - Email Magic Link
+    // MARK: - Email + Password
 
-    func sendMagicLink(email: String) async {
-        isLoading = true
-        error = nil
-        do {
-            try await supabase.auth.signInWithOTP(email: email)
-        } catch let err {
-            error = err.localizedDescription
-        }
-        isLoading = false
-    }
-
-    // MARK: - Email + Password (dev only)
-
-    func signInWithPassword(email: String, password: String) async {
+    func signIn(email: String, password: String) async {
         isLoading = true
         error = nil
         do {
@@ -126,15 +113,16 @@ class AuthManager: ObservableObject {
         isLoading = false
     }
 
-    // MARK: - Deep Link (magic link callback)
-
-    func handleDeepLink(_ url: URL) async {
-        guard url.scheme == "com.joinhappygolf.app" else { return }
+    func signUp(email: String, password: String) async {
+        isLoading = true
+        error = nil
         do {
-            try await supabase.auth.session(from: url)
-        } catch {
-            self.error = error.localizedDescription
+            let response = try await supabase.auth.signUp(email: email, password: password)
+            session = response.session
+        } catch let err {
+            error = err.localizedDescription
         }
+        isLoading = false
     }
 
     // MARK: - Sign Out

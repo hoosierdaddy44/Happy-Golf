@@ -10,9 +10,6 @@ struct HappyApp: App {
             RootView()
                 .environmentObject(appState)
                 .environmentObject(authManager)
-                .onOpenURL { url in
-                    Task { await authManager.handleDeepLink(url) }
-                }
         }
     }
 }
