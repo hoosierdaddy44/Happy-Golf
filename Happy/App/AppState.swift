@@ -91,8 +91,35 @@ class AppState: ObservableObject {
     }
 
     func fetchTeeTimes() async {
-        if devUserId != nil {
-            teeTimes = TeeTime.mockData
+        if let userId = devUserId {
+            let now = Date()
+            let cal = Calendar.current
+            // Seed two upcoming hosted rounds for the dev user so edit/profile features work
+            let devRounds: [TeeTime] = [
+                TeeTime(
+                    hostId: userId,
+                    courseName: "Bethpage Black",
+                    courseLocation: "Farmingdale, NY",
+                    date: cal.date(byAdding: .day, value: 5, to: now)!,
+                    teeTimeString: "8:00 AM",
+                    openSpots: 2,
+                    totalSpots: 3,
+                    carryMode: .walking,
+                    tees: "Blue"
+                ),
+                TeeTime(
+                    hostId: userId,
+                    courseName: "Winged Foot Golf Club",
+                    courseLocation: "Mamaroneck, NY",
+                    date: cal.date(byAdding: .day, value: 12, to: now)!,
+                    teeTimeString: "7:30 AM",
+                    openSpots: 1,
+                    totalSpots: 4,
+                    carryMode: .riding,
+                    tees: "Championship"
+                )
+            ]
+            teeTimes = devRounds + TeeTime.mockData
             for u in User.mockUsers { profileCache[u.id] = u }
             return
         }

@@ -123,8 +123,11 @@ struct ProfileView: View {
                 }
                 .onChange(of: pickerItem) { _, item in
                     Task {
-                        if let data = try? await item?.loadTransferable(type: Data.self) {
-                            await appState.updateAvatar(data)
+                        guard let item else { return }
+                        if let data = try? await item.loadTransferable(type: Data.self),
+                           let uiImage = UIImage(data: data),
+                           let jpegData = uiImage.jpegData(compressionQuality: 0.85) {
+                            await appState.updateAvatar(jpegData)
                         }
                     }
                 }
