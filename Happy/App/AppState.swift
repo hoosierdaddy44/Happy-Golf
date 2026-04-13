@@ -69,6 +69,21 @@ class AppState: ObservableObject {
 
     // MARK: - Bootstrap
 
+    func reset() {
+        currentUser = nil
+        isOnboarded = false
+        isApproved = false
+        teeTimes = []
+        joinRequests = []
+        activityEvents = []
+        pendingRatingPrompts = []
+        accolades = [:]
+        friendships = []
+        profileCache = [:]
+        devUserId = nil
+        error = nil
+    }
+
     func load(userId: UUID) async {
         isLoading = true
         async let profileTask: () = fetchProfile(userId: userId)

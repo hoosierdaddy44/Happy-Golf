@@ -32,6 +32,8 @@ struct RootView: View {
                 let userId = authManager.session?.user.id ?? UUID()
                 if authManager.devBypass { appState.devUserId = userId }
                 Task { await appState.load(userId: userId) }
+            } else {
+                appState.reset()
             }
         }
         .task {
