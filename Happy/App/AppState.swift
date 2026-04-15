@@ -100,6 +100,7 @@ class AppState: ObservableObject {
             await fetchJoinRequests(userId: userId)
             await fetchFriendships(userId: userId)
             await fetchGroups(userId: userId)
+            await fetchMyScores(userId: userId)
             checkPendingRatingPrompts(userId: userId)
             await fetchAccolades(for: userId)
             await checkApproval()
@@ -519,15 +520,33 @@ class AppState: ObservableObject {
     // MARK: - Ratings & Accolades
 
     func submitScore(teeTimeId: UUID, score: Int) async {
+        guard let userId = currentUser?.id ?? devUserId else { return }
         if let idx = teeTimes.firstIndex(where: { $0.id == teeTimeId }) {
             teeTimes[idx].score = score
         }
         guard devUserId == nil else { return }
+        let body = RoundScoreInsert(teeTimeId: teeTimeId, userId: userId, grossScore: score)
         _ = try? await supabase
-            .from("tee_times")
-            .update(["score": score])
-            .eq("id", value: teeTimeId)
+            .from("round_scores")
+            .upsert(body, onConflict: "tee_time_id,user_id")
             .execute()
+    }
+
+    func fetchMyScores(userId: UUID) async {
+        guard devUserId == nil else { return }
+        do {
+            let resp = try await supabase
+                .from("round_scores")
+                .select()
+                .eq("user_id", value: userId)
+                .execute()
+            let rows = try decoder.decode([RoundScoreRow].self, from: resp.data)
+            for row in rows {
+                if let idx = teeTimes.firstIndex(where: { $0.id == row.teeTimeId }) {
+                    teeTimes[idx].score = row.grossScore
+                }
+            }
+        } catch { }
     }
 
     func submitRating(teeTimeId: UUID, rateeId: UUID, score: Int) async {

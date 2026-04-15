@@ -380,3 +380,32 @@ struct GroupMemberInsert: Encodable {
         case role
     }
 }
+
+// MARK: - Round Score Row Types
+
+struct RoundScoreRow: Codable {
+    let id: UUID
+    let teeTimeId: UUID
+    let userId: UUID
+    let grossScore: Int
+    let createdAt: Date
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case teeTimeId  = "tee_time_id"
+        case userId     = "user_id"
+        case grossScore = "gross_score"
+        case createdAt  = "created_at"
+    }
+}
+
+struct RoundScoreInsert: Encodable {
+    let teeTimeId: UUID
+    let userId: UUID
+    let grossScore: Int
+    enum CodingKeys: String, CodingKey {
+        case teeTimeId  = "tee_time_id"
+        case userId     = "user_id"
+        case grossScore = "gross_score"
+    }
+}
