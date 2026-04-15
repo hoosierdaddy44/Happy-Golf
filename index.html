@@ -773,6 +773,69 @@
     letter-spacing: 0.04em;
   }
 
+  /* AFTER THE ROUND */
+  .after-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    max-width: 800px;
+  }
+
+  @media (min-width: 640px) {
+    .after-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .after-card {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+    padding: 28px;
+    background: var(--green);
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.07);
+    transition: transform 0.25s ease;
+  }
+
+  .after-card:hover { transform: translateY(-2px); }
+
+  .after-card-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .after-card-body strong {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--cream);
+    margin-bottom: 8px;
+  }
+
+  .after-card-body p {
+    font-size: 13px;
+    line-height: 1.75;
+    color: rgba(245, 240, 232, 0.6);
+    font-weight: 300;
+  }
+
+  /* FORMAT BADGE */
+  .format-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(28, 61, 43, 0.07);
+    border: 1px solid rgba(28, 61, 43, 0.15);
+    color: var(--green);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 100px;
+  }
+
   /* GROUPS */
   .groups-grid {
     display: grid;
@@ -898,7 +961,7 @@
         <span class="step-num">3</span>
         <div class="step-icon">😄</div>
         <h3>Play Happy</h3>
-        <p>Hosts approve who gets in. Show up knowing the group is exactly right — every time.</p>
+        <p>Hosts approve who gets in. Pick your format — stroke play, match play, skins, scramble, or best ball. Show up knowing the group is exactly right.</p>
       </div>
     </div>
   </div>
@@ -943,6 +1006,46 @@
   </div>
 </section>
 
+<!-- AFTER THE ROUND -->
+<div style="padding: 0 12px 100px;">
+<div class="why-section" style="background: var(--green);">
+  <div class="container">
+    <div class="section-label" style="color:rgba(200,230,210,0.5);">After Your Round</div>
+    <div class="section-title" style="color:var(--cream);">The round doesn't end<br>on <em>18.</em></div>
+    <div class="after-grid">
+      <div class="after-card fade-up" style="transition-delay:0.08s">
+        <div class="after-card-icon">📊</div>
+        <div class="after-card-body">
+          <strong>Round Summary & Leaderboard</strong>
+          <p>Every round gets a net leaderboard. See who won, net scores vs. par, and the full player breakdown — all in one view.</p>
+        </div>
+      </div>
+      <div class="after-card fade-up" style="transition-delay:0.16s">
+        <div class="after-card-icon">✅</div>
+        <div class="after-card-body">
+          <strong>Score Verification</strong>
+          <p>Co-players verify each other's scores after the round. No self-reporting. No disputes. Everyone in the group signs off.</p>
+        </div>
+      </div>
+      <div class="after-card fade-up" style="transition-delay:0.24s">
+        <div class="after-card-icon">🏆</div>
+        <div class="after-card-body">
+          <strong>Claim Accolades</strong>
+          <p>Eagle? Broke 80? Hole-in-one? Log your accolades after the round and get them verified by your playing partners.</p>
+        </div>
+      </div>
+      <div class="after-card fade-up" style="transition-delay:0.32s">
+        <div class="after-card-icon">⭐</div>
+        <div class="after-card-body">
+          <strong>Rate Your Playing Partners</strong>
+          <p>Every round ends with a mutual rating. Good players build a reputation that unlocks better rounds and tighter groups.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
 <!-- PRODUCT PREVIEW -->
 <section class="preview-section">
   <div class="container" style="text-align:center;">
@@ -971,6 +1074,7 @@
           <div class="meta-icon">🚶</div>
           Walking
         </div>
+        <div class="format-badge">🏌️ Stroke Play</div>
       </div>
       <div class="players-label">Players</div>
       <div class="player-list">
