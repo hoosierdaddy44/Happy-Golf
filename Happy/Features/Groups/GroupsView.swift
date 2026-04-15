@@ -4,22 +4,13 @@ struct GroupsView: View {
     @EnvironmentObject var appState: AppState
     @State private var searchText = ""
     @State private var showCreateSheet = false
+    @State private var searchResults: [HappyGroup] = []
+    @State private var isSearchLoading = false
 
-    private var myGroups: [HappyGroup] {
-        let filtered = searchText.isEmpty ? appState.groups : appState.groups.filter {
-            $0.name.localizedCaseInsensitiveContains(searchText) ||
-            $0.description.localizedCaseInsensitiveContains(searchText)
-        }
-        return filtered.filter { $0.isMember }
-    }
+    private var isSearching: Bool { !searchText.trimmingCharacters(in: .whitespaces).isEmpty }
 
-    private var discoverGroups: [HappyGroup] {
-        let filtered = searchText.isEmpty ? appState.groups : appState.groups.filter {
-            $0.name.localizedCaseInsensitiveContains(searchText) ||
-            $0.description.localizedCaseInsensitiveContains(searchText)
-        }
-        return filtered.filter { !$0.isMember }
-    }
+    private var myGroups: [HappyGroup] { appState.groups.filter { $0.isMember } }
+    private var discoverGroups: [HappyGroup] { appState.groups.filter { !$0.isMember } }
 
     var body: some View {
         NavigationStack {
@@ -49,7 +40,10 @@ struct GroupsView: View {
                                 .font(HappyFont.bodyRegular(size: 15))
                                 .foregroundColor(.happyBlack)
                                 .autocorrectionDisabled()
-                            if !searchText.isEmpty {
+                            if isSearchLoading {
+                                ProgressView()
+                                    .scaleEffect(0.7)
+                            } else if !searchText.isEmpty {
                                 Button { searchText = "" } label: {
                                     Image(systemName: "xmark.circle.fill")
                                         .font(.system(size: 14))
@@ -65,66 +59,115 @@ struct GroupsView: View {
                         .padding(.horizontal, HappySpacing.xl)
                         .padding(.bottom, HappySpacing.xl)
 
-                        if !myGroups.isEmpty {
-                            VStack(alignment: .leading, spacing: HappySpacing.sm) {
-                                Text("MY GROUPS")
-                                    .font(HappyFont.metaSmall)
-                                    .tracking(1.4)
-                                    .foregroundColor(.happyMuted)
-                                    .padding(.horizontal, HappySpacing.xl)
-
-                                VStack(spacing: HappySpacing.sm) {
-                                    ForEach(myGroups) { group in
-                                        NavigationLink(destination: GroupDetailView(group: group)) {
-                                            GroupCard(group: group)
-                                        }
-                                        .buttonStyle(.plain)
-                                    }
+                        if isSearching {
+                            // Search results
+                            if searchResults.isEmpty && !isSearchLoading {
+                                VStack(spacing: HappySpacing.md) {
+                                    Text("🔍")
+                                        .font(.system(size: 40))
+                                    Text("No groups found.")
+                                        .font(HappyFont.displayMedium(size: 18))
+                                        .foregroundColor(.happyGreen)
+                                    Text("Try a different name.")
+                                        .font(HappyFont.bodyLight(size: 14))
+                                        .foregroundColor(.happyMuted)
                                 }
+                                .frame(maxWidth: .infinity)
+                                .padding(.top, HappySpacing.xxl)
+                            } else {
+                                VStack(alignment: .leading, spacing: HappySpacing.sm) {
+                                    Text("RESULTS")
+                                        .font(HappyFont.metaSmall)
+                                        .tracking(1.4)
+                                        .foregroundColor(.happyMuted)
+                                        .padding(.horizontal, HappySpacing.xl)
+                                    VStack(spacing: HappySpacing.sm) {
+                                        ForEach(searchResults) { group in
+                                            NavigationLink(destination: GroupDetailView(group: group)) {
+                                                GroupCard(group: group)
+                                            }
+                                            .buttonStyle(.plain)
+                                        }
+                                    }
+                                    .padding(.horizontal, HappySpacing.xl)
+                                }
+                                .padding(.bottom, HappySpacing.xl)
+                            }
+                        } else {
+                            // Normal browse layout
+                            if !myGroups.isEmpty {
+                                VStack(alignment: .leading, spacing: HappySpacing.sm) {
+                                    Text("MY GROUPS")
+                                        .font(HappyFont.metaSmall)
+                                        .tracking(1.4)
+                                        .foregroundColor(.happyMuted)
+                                        .padding(.horizontal, HappySpacing.xl)
+                                    VStack(spacing: HappySpacing.sm) {
+                                        ForEach(myGroups) { group in
+                                            NavigationLink(destination: GroupDetailView(group: group)) {
+                                                GroupCard(group: group)
+                                            }
+                                            .buttonStyle(.plain)
+                                        }
+                                    }
+                                    .padding(.horizontal, HappySpacing.xl)
+                                }
+                                .padding(.bottom, HappySpacing.xl)
+                            }
+
+                            if !discoverGroups.isEmpty {
+                                VStack(alignment: .leading, spacing: HappySpacing.sm) {
+                                    Text("DISCOVER")
+                                        .font(HappyFont.metaSmall)
+                                        .tracking(1.4)
+                                        .foregroundColor(.happyMuted)
+                                        .padding(.horizontal, HappySpacing.xl)
+                                    VStack(spacing: HappySpacing.sm) {
+                                        ForEach(discoverGroups) { group in
+                                            NavigationLink(destination: GroupDetailView(group: group)) {
+                                                GroupCard(group: group)
+                                            }
+                                            .buttonStyle(.plain)
+                                        }
+                                    }
+                                    .padding(.horizontal, HappySpacing.xl)
+                                }
+                                .padding(.bottom, HappySpacing.xl)
+                            }
+
+                            if myGroups.isEmpty && discoverGroups.isEmpty {
+                                VStack(spacing: HappySpacing.md) {
+                                    Text("⛳")
+                                        .font(.system(size: 48))
+                                    Text("No groups yet.")
+                                        .font(HappyFont.displayMedium(size: 18))
+                                        .foregroundColor(.happyGreen)
+                                    Text("Create one to start playing with your crew.")
+                                        .font(HappyFont.bodyLight(size: 14))
+                                        .foregroundColor(.happyMuted)
+                                        .multilineTextAlignment(.center)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.top, HappySpacing.xxl)
                                 .padding(.horizontal, HappySpacing.xl)
                             }
-                            .padding(.bottom, HappySpacing.xl)
-                        }
-
-                        if !discoverGroups.isEmpty {
-                            VStack(alignment: .leading, spacing: HappySpacing.sm) {
-                                Text("DISCOVER")
-                                    .font(HappyFont.metaSmall)
-                                    .tracking(1.4)
-                                    .foregroundColor(.happyMuted)
-                                    .padding(.horizontal, HappySpacing.xl)
-
-                                VStack(spacing: HappySpacing.sm) {
-                                    ForEach(discoverGroups) { group in
-                                        NavigationLink(destination: GroupDetailView(group: group)) {
-                                            GroupCard(group: group)
-                                        }
-                                        .buttonStyle(.plain)
-                                    }
-                                }
-                                .padding(.horizontal, HappySpacing.xl)
-                            }
-                            .padding(.bottom, HappySpacing.xl)
-                        }
-
-                        if myGroups.isEmpty && discoverGroups.isEmpty {
-                            VStack(spacing: HappySpacing.md) {
-                                Text("⛳")
-                                    .font(.system(size: 48))
-                                Text("No groups yet.")
-                                    .font(HappyFont.displayMedium(size: 18))
-                                    .foregroundColor(.happyGreen)
-                                Text("Create one to start playing with your crew.")
-                                    .font(HappyFont.bodyLight(size: 14))
-                                    .foregroundColor(.happyMuted)
-                                    .multilineTextAlignment(.center)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.top, HappySpacing.xxl)
-                            .padding(.horizontal, HappySpacing.xl)
                         }
 
                         Color.clear.frame(height: 100)
+                    }
+                }
+                .onChange(of: searchText) { _, query in
+                    let trimmed = query.trimmingCharacters(in: .whitespaces)
+                    if trimmed.isEmpty {
+                        searchResults = []
+                        return
+                    }
+                    isSearchLoading = true
+                    Task {
+                        try? await Task.sleep(nanoseconds: 300_000_000) // 300ms debounce
+                        guard searchText.trimmingCharacters(in: .whitespaces) == trimmed else { return }
+                        searchResults = await appState.searchGroups(query: trimmed)
+                        isSearchLoading = false
                     }
                 }
 

@@ -907,6 +907,46 @@ class AppState: ObservableObject {
         teeTimes.filter { $0.groupId == groupId }
     }
 
+    func searchGroups(query: String) async -> [HappyGroup] {
+        let q = query.trimmingCharacters(in: .whitespaces)
+        guard !q.isEmpty else { return [] }
+        if devUserId != nil {
+            let lower = q.lowercased()
+            return HappyGroup.mockGroups.filter {
+                $0.name.lowercased().contains(lower) ||
+                $0.description.lowercased().contains(lower)
+            }
+        }
+        do {
+            guard let userId = currentUser?.id else { return [] }
+            let resp = try await supabase
+                .from("groups")
+                .select()
+                .ilike("name", value: "%\(q)%")
+                .execute()
+            let rows = try decoder.decode([GroupRow].self, from: resp.data)
+
+            let memberResp = try? await supabase
+                .from("group_members")
+                .select("group_id, role")
+                .eq("user_id", value: userId)
+                .execute()
+            struct MembershipRow: Decodable {
+                let groupId: UUID; let role: String
+                enum CodingKeys: String, CodingKey { case groupId = "group_id"; case role }
+            }
+            let memberships = (try? JSONDecoder().decode([MembershipRow].self, from: memberResp?.data ?? Data())) ?? []
+            let myRoleMap = Dictionary(uniqueKeysWithValues: memberships.map {
+                ($0.groupId, GroupRole(rawValue: $0.role) ?? .member)
+            })
+            return rows.map { row in
+                row.toGroup(memberCount: 0, myRole: myRoleMap[row.id])
+            }
+        } catch {
+            return []
+        }
+    }
+
     // MARK: - Helpers
 
     func searchUsers(query: String) async -> [User] {
