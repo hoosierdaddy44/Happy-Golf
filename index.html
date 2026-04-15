@@ -3,15 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Happy — Golf on Your Terms</title>
-<meta name="description" content="Where your round becomes your network. Build your Happy Tour Card — share moments, post verified scores, and grow your reputation on and off the course.">
-<meta property="og:title" content="Happy — Golf on Your Terms">
-<meta property="og:description" content="Where your round becomes your network. Find or host curated rounds, build your Happy Tour Card, share moments verified by everyone on the round. NYC & South Florida. Invite only.">
-<meta property="og:url" content="https://joinhappy.golf">
-<meta property="og:type" content="website">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Happy — Golf on Your Terms">
-<meta name="twitter:description" content="Build your Happy Tour Card. Share moments, post verified scores, grow your network on the course. NYC & South Florida. Invite only.">
+<title>Happy — Golf with people you actually like</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Instrument+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -154,12 +146,11 @@
   }
 
   .hero-eyebrow {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(24px, 3.5vw, 36px);
-    font-weight: 400;
-    font-style: italic;
-    letter-spacing: 0.01em;
-    color: var(--green);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--green-light);
     margin-bottom: 20px;
   }
 
@@ -559,11 +550,11 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: 14px;
-    max-width: 900px;
+    max-width: 700px;
   }
 
   @media (min-width: 640px) {
-    .why-grid { grid-template-columns: 1fr 1fr 1fr; }
+    .why-grid { grid-template-columns: 1fr 1fr; }
   }
 
   .why-item {
@@ -741,43 +732,6 @@
     line-height: 1.6;
   }
 
-  /* CONSENT CHECKBOX */
-  .consent-group {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    margin-top: 20px;
-    margin-bottom: 4px;
-    padding: 16px;
-    background: var(--cream);
-    border-radius: 10px;
-    border: 1px solid var(--sand-light);
-  }
-
-  .consent-checkbox {
-    width: 18px;
-    height: 18px;
-    min-width: 18px;
-    margin-top: 1px;
-    accent-color: var(--green);
-    cursor: pointer;
-  }
-
-  .consent-label {
-    font-size: 12px;
-    color: var(--muted);
-    line-height: 1.6;
-    cursor: pointer;
-  }
-
-  .consent-label a {
-    color: var(--green-light);
-    text-decoration: underline;
-    text-underline-offset: 2px;
-  }
-
-  .consent-label a:hover { color: var(--green); }
-
   /* FOOTER */
   footer {
     padding: 40px 24px;
@@ -819,22 +773,118 @@
     letter-spacing: 0.04em;
   }
 
-  .footer-legal {
+  /* AFTER THE ROUND */
+  .after-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    max-width: 800px;
+  }
+
+  @media (min-width: 640px) {
+    .after-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .after-card {
     display: flex;
-    gap: 20px;
+    gap: 18px;
+    align-items: flex-start;
+    padding: 28px;
+    background: var(--green);
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.07);
+    transition: transform 0.25s ease;
+  }
+
+  .after-card:hover { transform: translateY(-2px); }
+
+  .after-card-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .after-card-body strong {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--cream);
+    margin-bottom: 8px;
+  }
+
+  .after-card-body p {
+    font-size: 13px;
+    line-height: 1.75;
+    color: rgba(245, 240, 232, 0.6);
+    font-weight: 300;
+  }
+
+  /* FORMAT BADGE */
+  .format-badge {
+    display: inline-flex;
     align-items: center;
-    flex-wrap: wrap;
-    justify-content: center;
+    gap: 5px;
+    background: rgba(28, 61, 43, 0.07);
+    border: 1px solid rgba(28, 61, 43, 0.15);
+    color: var(--green);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 100px;
   }
 
-  .footer-legal a {
-    font-size: 11px;
+  /* GROUPS */
+  .groups-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  @media (min-width: 640px) {
+    .groups-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .group-feature-card {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+    padding: 28px;
+    background: var(--white);
+    border-radius: 20px;
+    border: 1px solid var(--sand-light);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+  }
+
+  .group-feature-card:hover {
+    box-shadow: 0 8px 32px rgba(28, 61, 43, 0.09);
+    transform: translateY(-2px);
+  }
+
+  .group-feature-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .group-feature-body strong {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--green);
+    margin-bottom: 8px;
+  }
+
+  .group-feature-body p {
+    font-size: 13px;
+    line-height: 1.75;
     color: var(--muted);
-    text-decoration: none;
-    letter-spacing: 0.04em;
+    font-weight: 300;
   }
-
-  .footer-legal a:hover { color: var(--green); text-decoration: underline; }
 
   /* ANIMATIONS */
   .fade-up {
@@ -859,7 +909,7 @@
     <div class="nav-logo-mark">⛳</div>
     <div>
       <div class="nav-logo-text">Happy</div>
-      <div class="nav-domain">joinhappy.golf</div>
+      <div class="nav-domain">happy.golf</div>
     </div>
   </div>
   <a href="#access" class="nav-cta">Request Access</a>
@@ -872,15 +922,15 @@
   <div class="hero-inner">
     <div class="badge fade-up">
       <span class="badge-dot"></span>
-      NYC & South Florida Beta &nbsp;·&nbsp; Golf Networking &nbsp;·&nbsp; Invite Only
+      Tri-State & South Florida Beta &nbsp;·&nbsp; Invite Only
     </div>
-    <h1 class="fade-up" style="transition-delay:0.16s">Golf on<br>your <em>terms.</em></h1>
-    <p class="hero-eyebrow fade-up" style="transition-delay:0.22s">Where your round becomes your <em>network.</em></p>
+    <p class="hero-eyebrow fade-up" style="transition-delay:0.08s">Golf with people you actually like</p>
+    <h1 class="fade-up" style="transition-delay:0.16s">Doesn't that make<br>you <em>happy?</em></h1>
     <p class="hero-tagline fade-up" style="transition-delay:0.24s">No randoms. No awkward pairings. Ever.</p>
-    <p class="hero-sub fade-up" style="transition-delay:0.32s">Happy is a private network for curated golf rounds. Find one that fits or host your own — people who match your skill, pace, and vibe, on your terms. Build a reputation that opens better doors.</p>
+    <p class="hero-sub fade-up" style="transition-delay:0.32s">Happy is a private network for curated golf rounds. Play with people who match your skill, pace, and vibe — and build a reputation that opens better doors.</p>
     <div class="hero-actions fade-up" style="transition-delay:0.42s">
       <a href="#access" class="hero-cta">Request Access →</a>
-      <span class="hero-sub-note">Limited NYC beta · Members approved individually</span>
+      <span class="hero-sub-note">Tri-State area & South Florida beta · Members approved individually</span>
     </div>
   </div>
   <div class="hero-scroll">
@@ -897,21 +947,99 @@
     <div class="steps-grid">
       <div class="step">
         <span class="step-num">1</span>
-        <div class="step-icon">🤝</div>
-        <h3>Request to Join</h3>
-        <p>Browse curated rounds near you. Request a spot and let your Happy profile speak for itself.</p>
+        <div class="step-icon">⛳</div>
+        <h3>Host a Round</h3>
+        <p>Pick your course, set the time, open spots. Your round, your standards.</p>
       </div>
       <div class="step" style="transition-delay:0.12s">
         <span class="step-num">2</span>
-        <div class="step-icon">⛳</div>
-        <h3>Host a Round</h3>
-        <p>When you're ready, open a round on your terms. Choose your course, set the vibe, approve who gets in.</p>
+        <div class="step-icon">🤝</div>
+        <h3>Request to Join</h3>
+        <p>Browse rounds near you and request a spot. Your Happy profile does the talking.</p>
       </div>
       <div class="step" style="transition-delay:0.24s">
         <span class="step-num">3</span>
         <div class="step-icon">😄</div>
         <h3>Play Happy</h3>
-        <p>Every group is curated. Every round is intentional. Show up knowing the people are exactly right.</p>
+        <p>Hosts approve who gets in. Pick your format — stroke play, match play, skins, scramble, or best ball. Show up knowing the group is exactly right.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- GROUPS -->
+<section style="padding: 100px 24px;">
+  <div class="container">
+    <div class="section-label fade-up">Your Circle</div>
+    <div class="section-title fade-up" style="transition-delay:0.08s">Golf is better when<br>you know <em>everyone</em> in the group.</div>
+    <div style="display:grid;grid-template-columns:1fr;gap:20px;max-width:800px;" class="groups-grid">
+      <div class="group-feature-card fade-up" style="transition-delay:0.12s">
+        <div class="group-feature-icon">🤝</div>
+        <div class="group-feature-body">
+          <strong>Your private circles</strong>
+          <p>Groups are invite-only spaces for your actual network — the people you actually want to play with, round after round.</p>
+        </div>
+      </div>
+      <div class="group-feature-card fade-up" style="transition-delay:0.2s">
+        <div class="group-feature-icon">🔒</div>
+        <div class="group-feature-body">
+          <strong>Post rounds exclusively to your group</strong>
+          <p>Keep certain rounds off the public feed. Post to your group only — so the right people see the right rounds.</p>
+        </div>
+      </div>
+      <div class="group-feature-card fade-up" style="transition-delay:0.28s">
+        <div class="group-feature-icon">🌿</div>
+        <div class="group-feature-body">
+          <strong>Invite people you meet on the course</strong>
+          <p>Played a great round with someone new? Add them to your group. Build your network one great round at a time.</p>
+        </div>
+      </div>
+      <div class="group-feature-card fade-up" style="transition-delay:0.36s">
+        <div class="group-feature-icon">🚫</div>
+        <div class="group-feature-body">
+          <strong>No randoms — even within your network</strong>
+          <p>Every group is curated. Even when you expand your circle, every new face is someone you chose to let in.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AFTER THE ROUND -->
+<div style="padding: 0 12px 100px;">
+<div class="why-section" style="background: var(--green);">
+  <div class="container">
+    <div class="section-label" style="color:rgba(200,230,210,0.5);">After Your Round</div>
+    <div class="section-title" style="color:var(--cream);">The round doesn't end<br>on <em>18.</em></div>
+    <div class="after-grid">
+      <div class="after-card fade-up" style="transition-delay:0.08s">
+        <div class="after-card-icon">📊</div>
+        <div class="after-card-body">
+          <strong>Round Summary & Leaderboard</strong>
+          <p>Every round gets a net leaderboard. See who won, net scores vs. par, and the full player breakdown — all in one view.</p>
+        </div>
+      </div>
+      <div class="after-card fade-up" style="transition-delay:0.16s">
+        <div class="after-card-icon">✅</div>
+        <div class="after-card-body">
+          <strong>Score Verification</strong>
+          <p>Co-players verify each other's scores after the round. No self-reporting. No disputes. Everyone in the group signs off.</p>
+        </div>
+      </div>
+      <div class="after-card fade-up" style="transition-delay:0.24s">
+        <div class="after-card-icon">🏆</div>
+        <div class="after-card-body">
+          <strong>Claim Accolades</strong>
+          <p>Eagle? Broke 80? Hole-in-one? Log your accolades after the round and get them verified by your playing partners.</p>
+        </div>
+      </div>
+      <div class="after-card fade-up" style="transition-delay:0.32s">
+        <div class="after-card-icon">⭐</div>
+        <div class="after-card-body">
+          <strong>Rate Your Playing Partners</strong>
+          <p>Every round ends with a mutual rating. Good players build a reputation that unlocks better rounds and tighter groups.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -946,6 +1074,7 @@
           <div class="meta-icon">🚶</div>
           Walking
         </div>
+        <div class="format-badge">🏌️ Stroke Play</div>
       </div>
       <div class="players-label">Players</div>
       <div class="player-list">
@@ -983,21 +1112,21 @@
 <div style="padding: 0 12px 100px;">
 <div class="why-section">
   <div class="container">
-    <div class="section-label">Flex on 'Em</div>
-    <div class="section-title">Golf is the best networking<br>you're not <em>using.</em></div>
+    <div class="section-label">Why Happy</div>
+    <div class="section-title">Golf is better when<br>the group is <em>right.</em></div>
     <div class="why-grid">
       <div class="why-item">
         <div class="why-icon">🤝</div>
         <div class="why-text">
-          <strong>Network in the sector you want</strong>
-          <p>Play with founders, operators, investors, or creatives in your industry. Every round is a room worth being in.</p>
+          <strong>Play with people worth knowing</strong>
+          <p>Network, meet clients, or just find others who actually care about the game.</p>
         </div>
       </div>
       <div class="why-item" style="transition-delay:0.1s">
         <div class="why-icon">⭐</div>
         <div class="why-text">
-          <strong>Earn your Happy Tour Card</strong>
-          <p>Share moments from your round and have them verified by everyone who played. Your scores, your highlights, your reputation — all in one place.</p>
+          <strong>Build your Happy profile</strong>
+          <p>Handicap, pace ratings, and reviews create a reputation that opens better rounds.</p>
         </div>
       </div>
       <div class="why-item" style="transition-delay:0.2s">
@@ -1008,24 +1137,10 @@
         </div>
       </div>
       <div class="why-item" style="transition-delay:0.3s">
-        <div class="why-icon">⛔</div>
+        <div class="why-icon">🚫</div>
         <div class="why-text">
           <strong>No randoms. Ever.</strong>
           <p>Every spot is approved. Every round is intentional. That's the whole point.</p>
-        </div>
-      </div>
-      <div class="why-item" style="transition-delay:0.4s">
-        <div class="why-icon">📊</div>
-        <div class="why-text">
-          <strong>Broadcast Your Verified Lows</strong>
-          <p>Post your best rounds, verified by the group. Your scorecard speaks louder than anything on LinkedIn.</p>
-        </div>
-      </div>
-      <div class="why-item" style="transition-delay:0.5s">
-        <div class="why-icon">🏆</div>
-        <div class="why-text">
-          <strong>Get Invited to Closed Rounds</strong>
-          <p>The best rounds aren't listed publicly. Build your reputation and get pulled into invite-only groups, member events, and off-menu tee times.</p>
         </div>
       </div>
     </div>
@@ -1042,62 +1157,22 @@
     </div>
 
     <div class="form-group">
-      <label class="form-label">Your Market <span style="color:#E8A838">*</span></label>
-      <div class="select-wrap">
-        <select id="field-location" class="form-select" required>
-          <option value="" disabled selected>Where are you based?</option>
-          <option>New York City</option>
-          <option>South Florida</option>
-          <option>Other</option>
-        </select>
-      </div>
+      <label class="form-label">Full Name</label>
+      <input type="text" class="form-input" placeholder="Your name">
     </div>
 
     <div class="form-group">
-      <label class="form-label">Full Name <span style="color:#E8A838">*</span></label>
-      <input id="field-name" type="text" class="form-input" placeholder="Your name" required>
+      <label class="form-label">Phone Number</label>
+      <input type="tel" class="form-input" placeholder="+1 (212) 000-0000">
     </div>
 
     <div class="form-group">
-      <label class="form-label">Email Address <span style="color:#E8A838">*</span></label>
-      <input id="field-email" type="email" class="form-input" placeholder="you@example.com" required>
+      <label class="form-label">Handicap Index</label>
+      <input type="number" class="form-input" placeholder="e.g. 8.4" step="0.1" min="0" max="54">
     </div>
 
     <div class="form-group">
-      <label class="form-label">Phone Number <span style="color:#E8A838">*</span></label>
-      <input id="field-phone" type="tel" class="form-input" placeholder="+1 (212) 000-0000" required>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">What do you do? <span style="color:#E8A838">*</span></label>
-      <input id="field-job" type="text" class="form-input" placeholder="e.g. Founder at XYZ, VC at ABC, Attorney, Banker..." required>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">Industry <span style="color:#E8A838">*</span></label>
-      <div class="select-wrap">
-        <select id="field-industry" class="form-select" required>
-          <option value="" disabled selected>Select your industry</option>
-          <option>Finance / Investing</option>
-          <option>Technology / Startups</option>
-          <option>Real Estate</option>
-          <option>Law</option>
-          <option>Media / Entertainment</option>
-          <option>Healthcare</option>
-          <option>Consulting</option>
-          <option>Sales / Business Development</option>
-          <option>Other</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">Handicap Index <span style="color:#E8A838">*</span></label>
-      <input id="field-handicap" type="number" class="form-input" placeholder="e.g. 8.4" step="0.1" min="0" max="54" required>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">Pace of Play <span style="color:#E8A838">*</span></label>
+      <label class="form-label">Pace of Play</label>
       <div class="pace-grid">
         <div>
           <input type="radio" name="pace" id="pace-fast" class="pace-option" value="fast">
@@ -1124,19 +1199,12 @@
     </div>
 
     <div class="form-group">
-      <label class="form-label">Where do you usually play? <span style="color:#E8A838">*</span></label>
-      <input id="field-courses" type="text" class="form-input" placeholder="e.g. Bethpage, Winged Foot, public courses in LI" required>
-    </div>
-
-    <div class="consent-group">
-      <input type="checkbox" id="consent-marketing" class="consent-checkbox">
-      <label class="consent-label" for="consent-marketing">
-        I agree to receive membership updates, product news, and promotional emails from Happy Golf. I understand I can unsubscribe at any time by clicking the unsubscribe link in any email. View our <a href="/privacy" target="_blank">Privacy Policy</a> and <a href="/terms" target="_blank">Terms of Service</a>.
-      </label>
+      <label class="form-label">Where do you usually play?</label>
+      <input type="text" class="form-input" placeholder="e.g. Bethpage, Winged Foot, public courses in LI">
     </div>
 
     <button class="form-submit" onclick="handleSubmit(this)">Request Access →</button>
-    <p class="form-note">Limited NYC & South Florida beta. We're accepting a small number of members to start.<br>joinhappy.golf</p>
+    <p class="form-note">Tri-State area & South Florida beta. We're accepting a small number of members to start.<br>happy.golf</p>
   </div>
 </section>
 
@@ -1146,13 +1214,8 @@
     <div class="footer-logo-mark">⛳</div>
     <div class="footer-logo-text">Happy</div>
   </div>
-  <div class="footer-domain">joinhappy.golf</div>
-  <div class="footer-legal">
-    <a href="/privacy">Privacy Policy</a>
-    <a href="/terms">Terms of Service</a>
-    <a href="mailto:hello@joinhappy.golf">hello@joinhappy.golf</a>
-  </div>
-  <div class="footer-copy">© 2025 Happy Golf LLC. Private network. NYC & South Florida Beta.</div>
+  <div class="footer-domain">happy.golf</div>
+  <div class="footer-copy">© 2025 Happy. Private network. Tri-State & South Florida Beta.</div>
 </footer>
 
 <script>
@@ -1171,76 +1234,17 @@
     });
   }, { threshold: 0.12 });
 
-  document.querySelectorAll('.step, .why-item, .round-card, .form-wrap').forEach(el => observer.observe(el));
+  document.querySelectorAll('.step, .why-item, .round-card, .form-wrap, .group-feature-card, .fade-up:not(.hero .fade-up)').forEach(el => observer.observe(el));
 
-  // Supabase config
-  const SUPABASE_URL = 'https://pjuyeldemhghpdnyiury.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_U6ZMQP6AEyXh2qc7QBhgrg_UEmyGTJJ';
-
-  async function handleSubmit(btn) {
-    const name = document.querySelector('#field-name').value.trim();
-    const email = document.querySelector('#field-email').value.trim();
-    const phone = document.querySelector('#field-phone').value.trim();
-    const job = document.querySelector('#field-job').value.trim();
-    const industry = document.querySelector('#field-industry').value;
-    const location = document.querySelector('#field-location').value;
-    const handicap = document.querySelector('#field-handicap').value;
-    const pace = document.querySelector('input[name="pace"]:checked')?.value || '';
-    const courses = document.querySelector('#field-courses').value.trim();
-    const marketingConsent = document.querySelector('#consent-marketing').checked;
-
-    if (!name || !email || !phone || !job || !industry || !location || !handicap || !pace || !courses) {
-      alert('All fields are required. Please complete the full application.');
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      alert('Please enter a valid email address.');
-      return;
-    }
-
-    btn.textContent = 'Submitting...';
+  // Form submit
+  function handleSubmit(btn) {
+    btn.textContent = '✓ You\'re on the list';
+    btn.style.background = '#2E6045';
+    btn.style.cursor = 'default';
     btn.disabled = true;
-
-    try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/waitlist`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': SUPABASE_KEY,
-          'Authorization': `Bearer ${SUPABASE_KEY}`,
-          'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          phone,
-          job,
-          industry,
-          location,
-          handicap: handicap || null,
-          pace,
-          courses,
-          marketing_consent: marketingConsent,
-          consent_timestamp: new Date().toISOString()
-        })
-      });
-
-      if (res.ok) {
-        btn.textContent = "✓ You're on the list";
-        btn.style.background = '#2E6045';
-        const note = document.querySelector('.form-note');
-        note.innerHTML = "We'll be in touch soon. Welcome to Happy.<br>joinhappy.golf";
-        note.style.color = '#2E6045';
-      } else {
-        throw new Error('Submission failed');
-      }
-    } catch (err) {
-      btn.textContent = 'Request Access →';
-      btn.disabled = false;
-      alert('Something went wrong. Please try again.');
-    }
+    const note = document.querySelector('.form-note');
+    note.innerHTML = "We'll be in touch soon. Welcome to Happy.<br>happy.golf";
+    note.style.color = '#2E6045';
   }
 </script>
 
