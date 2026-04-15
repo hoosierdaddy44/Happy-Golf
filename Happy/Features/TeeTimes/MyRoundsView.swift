@@ -60,6 +60,7 @@ struct MyRoundsView: View {
                         joinedTab
                     }
                 }
+                .refreshable { await appState.refresh() }
             }
         }
         .sheet(item: Binding(

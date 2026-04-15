@@ -31,7 +31,10 @@ struct RootView: View {
             if signedIn {
                 let userId = authManager.session?.user.id ?? UUID()
                 if authManager.devBypass { appState.devUserId = userId }
-                Task { await appState.load(userId: userId) }
+                Task {
+                    await appState.load(userId: userId)
+                    appState.subscribeToRealtime(userId: userId)
+                }
             } else {
                 appState.reset()
             }
@@ -39,6 +42,7 @@ struct RootView: View {
         .task {
             if authManager.isSignedIn, let userId = authManager.session?.user.id {
                 await appState.load(userId: userId)
+                appState.subscribeToRealtime(userId: userId)
             }
         }
     }

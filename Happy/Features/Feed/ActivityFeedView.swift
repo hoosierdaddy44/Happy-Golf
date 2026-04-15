@@ -46,6 +46,7 @@ struct ActivityFeedView: View {
                         .padding(.top, HappySpacing.md)
                         .padding(.bottom, HappySpacing.section)
                     }
+                    .refreshable { await appState.refresh() }
                 }
             }
         }

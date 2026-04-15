@@ -144,6 +144,7 @@ struct DiscoveryView: View {
                         }
                         .padding(.top, HappySpacing.md)
                     }
+                    .refreshable { await appState.refresh() }
                 }
             }
             .navigationDestination(item: $selectedTeeTime) { tt in

@@ -1026,6 +1026,25 @@ class AppState: ObservableObject {
         }
     }
 
+    // MARK: - Refresh & Realtime
+
+    func refresh() async {
+        guard let userId = currentUser?.id ?? devUserId else { return }
+        await load(userId: userId)
+    }
+
+    func subscribeToRealtime(userId: UUID) {
+        guard devUserId == nil else { return }
+        Task {
+            let channel = supabase.channel("join-requests-\(userId.uuidString)")
+            let changes = channel.postgresChange(AnyAction.self, schema: "public", table: "join_requests")
+            await channel.subscribe()
+            for await _ in changes {
+                await fetchJoinRequests(userId: userId)
+            }
+        }
+    }
+
     // MARK: - Helpers
 
     func searchUsers(query: String) async -> [User] {
