@@ -29,6 +29,17 @@ enum AccoladeType: String, CaseIterable, Codable {
         case .personalBest:  return "🏆"
         }
     }
+
+    var description: String {
+        switch self {
+        case .eagle:         return "Made an eagle on any hole"
+        case .birdieMachine: return "Multiple birdies in a single round"
+        case .broke80:       return "Shot under 80 gross"
+        case .broke70:       return "Shot under 70 gross"
+        case .holeInOne:     return "Aced a hole"
+        case .personalBest:  return "Best round of your career"
+        }
+    }
 }
 
 struct AccoladeVerification: Identifiable {

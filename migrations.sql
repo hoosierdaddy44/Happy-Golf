@@ -369,3 +369,32 @@ create policy "Members can leave"
 
 -- Add group_id to tee_times
 alter table tee_times add column if not exists group_id uuid references groups(id) on delete set null;
+
+-- ────────────────────────────────────────────────────────────────────────────
+-- 13. Round Format on Tee Times
+-- ────────────────────────────────────────────────────────────────────────────
+
+alter table tee_times add column if not exists format text not null default 'stroke_play'
+  check (format in ('stroke_play','match_play','skins','scramble','best_ball'));
+
+-- ────────────────────────────────────────────────────────────────────────────
+-- 14. Score Verifications
+-- ────────────────────────────────────────────────────────────────────────────
+
+create table if not exists score_verifications (
+  id           uuid primary key default gen_random_uuid(),
+  tee_time_id  uuid not null references tee_times(id) on delete cascade,
+  player_id    uuid not null references profiles(id) on delete cascade,
+  verifier_id  uuid not null references profiles(id) on delete cascade,
+  created_at   timestamptz not null default now(),
+  unique (tee_time_id, player_id, verifier_id)
+);
+
+alter table score_verifications enable row level security;
+
+create policy "Score verifications readable by all"
+  on score_verifications for select using (true);
+
+create policy "Players can verify others scores"
+  on score_verifications for insert
+  with check (auth.uid() = verifier_id and auth.uid() != player_id);

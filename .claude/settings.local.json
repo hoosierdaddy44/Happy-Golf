@@ -5,7 +5,12 @@
       "Bash(brew install:*)",
       "Bash(which xcodegen:*)",
       "Bash(xcodebuild \\\\\n  -project Happy.xcodeproj \\\\\n  -scheme Happy \\\\\n  -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \\\\\n  build 2>&1 | tail -30)",
-      "Bash(printf '' > /Users/alexschein/Desktop/Happy/PRD.md && ls -la /Users/alexschein/Desktop/Happy/PRD.md)"
+      "Bash(printf '' > /Users/alexschein/Desktop/Happy/PRD.md && ls -la /Users/alexschein/Desktop/Happy/PRD.md)",
+      "mcp__ios-simulator__ui_tap",
+      "mcp__ios-simulator__ui_type",
+      "mcp__ios-simulator__screenshot",
+      "mcp__ios-simulator__ui_describe_all",
+      "mcp__ios-simulator__ui_swipe"
     ]
   }
 }

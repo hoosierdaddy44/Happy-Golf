@@ -30,6 +30,7 @@ struct TeeTimeInsert: Encodable {
     let teeTime: String
     let openSpots: Int
     let carryMode: String
+    let format: String
     let tees: String?
     let notes: String?
 
@@ -42,6 +43,7 @@ struct TeeTimeInsert: Encodable {
         case teeTime    = "tee_time"
         case openSpots  = "open_spots"
         case carryMode  = "carry_mode"
+        case format
         case tees
         case notes
     }
@@ -102,6 +104,7 @@ struct TeeTimeRow: Codable {
     let teeTime: String      // "07:24:00"
     let openSpots: Int
     let carryMode: String
+    let format: String?
     let tees: String?
     let notes: String?
     let score: Int?
@@ -117,6 +120,7 @@ struct TeeTimeRow: Codable {
         case teeTime     = "tee_time"
         case openSpots   = "open_spots"
         case carryMode   = "carry_mode"
+        case format
         case tees
         case notes
         case score
@@ -137,6 +141,7 @@ struct TeeTimeRow: Codable {
             openSpots: openSpots,
             totalSpots: openSpots + 1 + approvedPlayerIds.count,
             carryMode: CarryMode(rawValue: carryMode.capitalized) ?? .walking,
+            format: RoundFormat(rawValue: format ?? "stroke_play") ?? .strokePlay,
             tees: tees,
             notes: notes,
             players: approvedPlayerIds,
@@ -407,5 +412,32 @@ struct RoundScoreInsert: Encodable {
         case teeTimeId  = "tee_time_id"
         case userId     = "user_id"
         case grossScore = "gross_score"
+    }
+}
+
+struct ScoreVerificationRow: Codable {
+    let id: UUID
+    let teeTimeId: UUID
+    let playerId: UUID
+    let verifierId: UUID
+    let createdAt: Date
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case teeTimeId  = "tee_time_id"
+        case playerId   = "player_id"
+        case verifierId = "verifier_id"
+        case createdAt  = "created_at"
+    }
+}
+
+struct ScoreVerificationInsert: Encodable {
+    let teeTimeId: UUID
+    let playerId: UUID
+    let verifierId: UUID
+    enum CodingKeys: String, CodingKey {
+        case teeTimeId  = "tee_time_id"
+        case playerId   = "player_id"
+        case verifierId = "verifier_id"
     }
 }

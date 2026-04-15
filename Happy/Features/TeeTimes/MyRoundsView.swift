@@ -6,6 +6,9 @@ struct MyRoundsView: View {
     @State private var selectedMemberId: UUID?
     @State private var scoreSheetTeeTime: TeeTime?
     @State private var selectedTeeTime: TeeTime?
+    @State private var editDateTeeTime: TeeTime?
+    @State private var transferTeeTime: TeeTime?
+    @State private var summaryTeeTime: TeeTime?
 
     private var hostedRounds: [TeeTime] {
         guard let user = appState.currentUser else { return [] }
@@ -73,6 +76,18 @@ struct MyRoundsView: View {
             TeeTimeDetailView(teeTime: tt)
                 .environmentObject(appState)
         }
+        .sheet(item: $editDateTeeTime) { tt in
+            EditRoundDateSheet(teeTime: tt)
+                .environmentObject(appState)
+        }
+        .sheet(item: $transferTeeTime) { tt in
+            TransferOwnershipSheet(teeTime: tt)
+                .environmentObject(appState)
+        }
+        .sheet(item: $summaryTeeTime) { tt in
+            RoundSummaryView(teeTime: tt)
+                .environmentObject(appState)
+        }
     }
 
     // MARK: - Hosting Tab
@@ -117,6 +132,25 @@ struct MyRoundsView: View {
                         roundRow(tt, role: "Host")
                             .onTapGesture { selectedTeeTime = tt }
                             .contextMenu {
+                                if !tt.isCompleted {
+                                    Button {
+                                        editDateTeeTime = tt
+                                    } label: {
+                                        Label("Edit Date & Time", systemImage: "calendar")
+                                    }
+                                    Button {
+                                        transferTeeTime = tt
+                                    } label: {
+                                        Label("Transfer Ownership", systemImage: "person.2.wave.2")
+                                    }
+                                }
+                                if tt.isCompleted {
+                                    Button {
+                                        summaryTeeTime = tt
+                                    } label: {
+                                        Label("Round Summary", systemImage: "chart.bar.doc.horizontal")
+                                    }
+                                }
                                 Button(role: .destructive) {
                                     Task { await appState.deleteTeeTime(id: tt.id) }
                                 } label: {
@@ -144,6 +178,13 @@ struct MyRoundsView: View {
                     roundRow(tt, role: "Confirmed")
                         .onTapGesture { selectedTeeTime = tt }
                         .contextMenu {
+                            if tt.isCompleted {
+                                Button {
+                                    summaryTeeTime = tt
+                                } label: {
+                                    Label("Round Summary", systemImage: "chart.bar.doc.horizontal")
+                                }
+                            }
                             if !tt.isCompleted {
                                 Button(role: .destructive) {
                                     Task { await appState.leaveRound(teeTimeId: tt.id) }
@@ -183,16 +224,26 @@ struct MyRoundsView: View {
                 }
                 Spacer()
                 if tt.isCompleted {
-                    if let score = tt.score {
-                        scoreDisplay(score: score)
-                    } else {
-                        Button { scoreSheetTeeTime = tt } label: {
-                            Text("Log Score")
-                                .font(HappyFont.bodyMedium(size: 11))
+                    HStack(spacing: HappySpacing.xs) {
+                        if let score = tt.score {
+                            scoreDisplay(score: score)
+                        } else {
+                            Button { scoreSheetTeeTime = tt } label: {
+                                Text("Log Score")
+                                    .font(HappyFont.bodyMedium(size: 11))
+                                    .foregroundColor(.happyGreen)
+                                    .padding(.vertical, 4)
+                                    .padding(.horizontal, 10)
+                                    .overlay(Capsule().stroke(Color.happyGreen, lineWidth: 1))
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        Button {
+                            summaryTeeTime = tt
+                        } label: {
+                            Image(systemName: "chart.bar.doc.horizontal")
+                                .font(.system(size: 16))
                                 .foregroundColor(.happyGreen)
-                                .padding(.vertical, 4)
-                                .padding(.horizontal, 10)
-                                .overlay(Capsule().stroke(Color.happyGreen, lineWidth: 1))
                         }
                         .buttonStyle(.plain)
                     }

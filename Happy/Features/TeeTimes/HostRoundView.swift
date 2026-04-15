@@ -11,6 +11,7 @@ struct HostRoundView: View {
     @State private var teeTimeAMPM = 0
     @State private var openSpots = 2
     @State private var carryMode: CarryMode = .walking
+    @State private var roundFormat: RoundFormat = .strokePlay
     @State private var tees = "Blue"
     @State private var notes = ""
     @State private var submitted = false
@@ -131,6 +132,19 @@ struct HostRoundView: View {
                                     label: "\(mode.emoji) \(mode.rawValue)",
                                     selected: carryMode == mode,
                                     action: { carryMode = mode }
+                                )
+                            }
+                        }
+                    }
+
+                    // Round Format
+                    fieldGroup(label: "Format") {
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: HappySpacing.xs) {
+                            ForEach(RoundFormat.allCases, id: \.self) { fmt in
+                                segmentButton(
+                                    label: "\(fmt.emoji) \(fmt.displayName)",
+                                    selected: roundFormat == fmt,
+                                    action: { roundFormat = fmt }
                                 )
                             }
                         }
@@ -281,6 +295,7 @@ struct HostRoundView: View {
             openSpots: openSpots,
             totalSpots: openSpots + 1,
             carryMode: carryMode,
+            format: roundFormat,
             tees: tees,
             notes: notes.isEmpty ? nil : notes
         )
@@ -307,7 +322,7 @@ struct HostRoundView: View {
             }
             HappyOutlineButton(title: "Post Another Round") {
                 courseName = ""; courseLocation = ""; notes = ""
-                openSpots = 2; carryMode = .walking; selectedGroupId = nil
+                openSpots = 2; carryMode = .walking; roundFormat = .strokePlay; selectedGroupId = nil
                 withAnimation { submitted = false }
             }
             Spacer()

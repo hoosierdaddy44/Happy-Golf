@@ -55,6 +55,9 @@
 		D3EAE857AA1184D04E9F4788 /* SupabaseClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AEC21BD4F3F9B0EAD994916 /* SupabaseClient.swift */; };
 		D7267E6A66B8C260FA182A17 /* HappyComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84002B144F135F9D988D34AD /* HappyComponents.swift */; };
 		DACD47DA94465335AA3BA6A2 /* ScoreEntrySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA79F37EDFDB4D855711EF01 /* ScoreEntrySheet.swift */; };
+		AA11BB22CC33DD44EE55FF66 /* RoundSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB22CC33DD44EE55FF60 /* RoundSummaryView.swift */; };
+		BB22CC33DD44EE55FF660011 /* EditRoundDateSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB22CC33DD44EE55FF660010 /* EditRoundDateSheet.swift */; };
+		CC33DD44EE55FF6600112233 /* TransferOwnershipSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC33DD44EE55FF6600112230 /* TransferOwnershipSheet.swift */; };
 		DFB02C7003DCDA719CC94031 /* AppStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E1339AE9A0C77ECACAE65A0 /* AppStateTests.swift */; };
 		DFD0CC647FFBC7B92165A651 /* ActivityFeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88D49644F8A545B881CD8BCD /* ActivityFeedView.swift */; };
 		E94EFAF0225AE56012C37C49 /* InstrumentSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B20042A6EF236C00627D0AE5 /* InstrumentSans-Regular.ttf */; };
@@ -131,6 +134,9 @@
 		D29CDB58163F3A8BCBE1C4CF /* AppIcon.svg */ = {isa = PBXFileReference; path = AppIcon.svg; sourceTree = "<group>"; };
 		D30A6B039EF68F606836270F /* TeeTime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeeTime.swift; sourceTree = "<group>"; };
 		DA79F37EDFDB4D855711EF01 /* ScoreEntrySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreEntrySheet.swift; sourceTree = "<group>"; };
+		AA11BB22CC33DD44EE55FF60 /* RoundSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundSummaryView.swift; sourceTree = "<group>"; };
+		BB22CC33DD44EE55FF660010 /* EditRoundDateSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRoundDateSheet.swift; sourceTree = "<group>"; };
+		CC33DD44EE55FF6600112230 /* TransferOwnershipSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferOwnershipSheet.swift; sourceTree = "<group>"; };
 		DAA0863BBF2CD131B9EA13D4 /* HappyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HappyApp.swift; sourceTree = "<group>"; };
 		DC7FB20A9634394BE0DD7CB4 /* RatingPromptSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RatingPromptSheet.swift; sourceTree = "<group>"; };
 		E017E4B7C24CC2E614038A5A /* PlayerSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerSearchView.swift; sourceTree = "<group>"; };
@@ -321,11 +327,14 @@
 		E73E035AB9ED938E424362C2 /* TeeTimes */ = {
 			isa = PBXGroup;
 			children = (
+				BB22CC33DD44EE55FF660010 /* EditRoundDateSheet.swift */,
 				780D4E1C3B05A2765D39925F /* HostRoundView.swift */,
 				FF42A56DC7E0E50264569390 /* MyRoundsView.swift */,
 				DC7FB20A9634394BE0DD7CB4 /* RatingPromptSheet.swift */,
+				AA11BB22CC33DD44EE55FF60 /* RoundSummaryView.swift */,
 				DA79F37EDFDB4D855711EF01 /* ScoreEntrySheet.swift */,
 				05B1FE20EAB653D7DCEB5C67 /* TeeTimeDetailView.swift */,
+				CC33DD44EE55FF6600112230 /* TransferOwnershipSheet.swift */,
 			);
 			path = TeeTimes;
 			sourceTree = "<group>";
@@ -529,7 +538,10 @@
 				67EF6F8FEE0B6BDECADC666F /* ProfileView.swift in Sources */,
 				629B714F9E382AB820CB99D4 /* RatingPromptSheet.swift in Sources */,
 				22F4276928BFDFEFF83074A0 /* RootView.swift in Sources */,
-				DACD47DA94465335AA3BA6A2 /* ScoreEntrySheet.swift in Sources */,
+				BB22CC33DD44EE55FF660011 /* EditRoundDateSheet.swift in Sources */,
+			AA11BB22CC33DD44EE55FF66 /* RoundSummaryView.swift in Sources */,
+			DACD47DA94465335AA3BA6A2 /* ScoreEntrySheet.swift in Sources */,
+			CC33DD44EE55FF6600112233 /* TransferOwnershipSheet.swift in Sources */,
 				A242E803A0C5EE81C205FB6D /* SplashView.swift in Sources */,
 				C30F2D5711857F4B5ECF590F /* StarRatingView.swift in Sources */,
 				D3EAE857AA1184D04E9F4788 /* SupabaseClient.swift in Sources */,

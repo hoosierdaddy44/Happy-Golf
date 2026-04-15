@@ -11,6 +11,7 @@ struct TeeTime: Identifiable, Hashable {
     var openSpots: Int
     var totalSpots: Int
     var carryMode: CarryMode
+    var format: RoundFormat
     var tees: String?
     var notes: String?
     var players: [UUID]
@@ -60,6 +61,7 @@ struct TeeTime: Identifiable, Hashable {
         openSpots: Int,
         totalSpots: Int,
         carryMode: CarryMode = .walking,
+        format: RoundFormat = .strokePlay,
         tees: String? = nil,
         notes: String? = nil,
         players: [UUID] = [],
@@ -77,12 +79,41 @@ struct TeeTime: Identifiable, Hashable {
         self.openSpots = openSpots
         self.totalSpots = totalSpots
         self.carryMode = carryMode
+        self.format = format
         self.tees = tees
         self.notes = notes
         self.players = players
         self.requests = requests
         self.score = score
         self.createdAt = createdAt
+    }
+}
+
+enum RoundFormat: String, CaseIterable, Codable {
+    case strokePlay = "stroke_play"
+    case matchPlay  = "match_play"
+    case skins      = "skins"
+    case scramble   = "scramble"
+    case bestBall   = "best_ball"
+
+    var displayName: String {
+        switch self {
+        case .strokePlay: return "Stroke Play"
+        case .matchPlay:  return "Match Play"
+        case .skins:      return "Skins"
+        case .scramble:   return "Scramble"
+        case .bestBall:   return "Best Ball"
+        }
+    }
+
+    var emoji: String {
+        switch self {
+        case .strokePlay: return "🏌️"
+        case .matchPlay:  return "⚔️"
+        case .skins:      return "💰"
+        case .scramble:   return "🤝"
+        case .bestBall:   return "⭐"
+        }
     }
 }
 

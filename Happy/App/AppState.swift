@@ -405,6 +405,7 @@ class AppState: ObservableObject {
             .update([
                 "open_spots": String(teeTime.openSpots),
                 "total_spots": String(teeTime.totalSpots),
+                "tee_date": dateFormatter.string(from: teeTime.date),
                 "tee_time": teeTime.teeTimeString,
                 "carry_mode": teeTime.carryMode.rawValue,
                 "tees": teeTime.tees ?? "",
@@ -436,6 +437,7 @@ class AppState: ObservableObject {
                 teeTime: teeTime.teeTimeString,
                 openSpots: teeTime.openSpots,
                 carryMode: teeTime.carryMode.rawValue.lowercased(),
+                format: teeTime.format.rawValue,
                 tees: teeTime.tees,
                 notes: teeTime.notes
             )
@@ -547,6 +549,64 @@ class AppState: ObservableObject {
                 }
             }
         } catch { }
+    }
+
+    func fetchRoundScores(teeTimeId: UUID) async -> [RoundScoreRow] {
+        if devUserId != nil {
+            // Return mock scores for each player on the round
+            guard let tt = teeTimes.first(where: { $0.id == teeTimeId }) else { return [] }
+            return tt.confirmedPlayerIds.enumerated().map { i, uid in
+                RoundScoreRow(id: UUID(), teeTimeId: teeTimeId, userId: uid,
+                             grossScore: 78 + i * 4, createdAt: Date())
+            }
+        }
+        do {
+            let resp = try await supabase
+                .from("round_scores")
+                .select()
+                .eq("tee_time_id", value: teeTimeId)
+                .execute()
+            return (try? decoder.decode([RoundScoreRow].self, from: resp.data)) ?? []
+        } catch { return [] }
+    }
+
+    func fetchScoreVerifications(teeTimeId: UUID) async -> [ScoreVerificationRow] {
+        if devUserId != nil { return [] }
+        do {
+            let resp = try await supabase
+                .from("score_verifications")
+                .select()
+                .eq("tee_time_id", value: teeTimeId)
+                .execute()
+            return (try? decoder.decode([ScoreVerificationRow].self, from: resp.data)) ?? []
+        } catch { return [] }
+    }
+
+    func verifyScore(teeTimeId: UUID, playerId: UUID) async {
+        guard let userId = currentUser?.id, devUserId == nil else { return }
+        let body = ScoreVerificationInsert(teeTimeId: teeTimeId, playerId: playerId, verifierId: userId)
+        _ = try? await supabase.from("score_verifications").insert(body).execute()
+    }
+
+    func transferOwnership(teeTimeId: UUID, newHostId: UUID) async {
+        if devUserId != nil {
+            if let idx = teeTimes.firstIndex(where: { $0.id == teeTimeId }) {
+                teeTimes[idx].hostId = newHostId
+            }
+            return
+        }
+        do {
+            try await supabase
+                .from("tee_times")
+                .update(["host_id": newHostId.uuidString])
+                .eq("id", value: teeTimeId.uuidString)
+                .execute()
+            if let idx = teeTimes.firstIndex(where: { $0.id == teeTimeId }) {
+                teeTimes[idx].hostId = newHostId
+            }
+        } catch {
+            self.error = error.localizedDescription
+        }
     }
 
     func submitRating(teeTimeId: UUID, rateeId: UUID, score: Int) async {
