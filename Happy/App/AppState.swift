@@ -14,6 +14,9 @@ class AppState: ObservableObject {
     @Published var accolades: [UUID: [Accolade]] = [:]
     @Published var friendships: [Friendship] = []
     @Published var isApproved: Bool = false
+    @Published var didJustApply: Bool = false
+    @Published var groups: [HappyGroup] = []
+    @Published var groupMembers: [UUID: [GroupMember]] = [:]
 
     // Tracks tee time IDs the user has already rated or dismissed
     private var dismissedRatingPromptIds: Set<UUID> {
@@ -73,12 +76,15 @@ class AppState: ObservableObject {
         currentUser = nil
         isOnboarded = false
         isApproved = false
+        didJustApply = false
         teeTimes = []
         joinRequests = []
         activityEvents = []
         pendingRatingPrompts = []
         accolades = [:]
         friendships = []
+        groups = []
+        groupMembers = [:]
         profileCache = [:]
         devUserId = nil
         error = nil
@@ -93,6 +99,7 @@ class AppState: ObservableObject {
         if currentUser != nil {
             await fetchJoinRequests(userId: userId)
             await fetchFriendships(userId: userId)
+            await fetchGroups(userId: userId)
             checkPendingRatingPrompts(userId: userId)
             await fetchAccolades(for: userId)
             await checkApproval()
@@ -102,16 +109,17 @@ class AppState: ObservableObject {
 
     func checkApproval() async {
         if devUserId != nil { isApproved = true; return }
-        guard let email = currentUser?.email else { return }
+        guard let userId = try? await supabase.auth.session.user.id else { return }
         do {
             let response = try await supabase
-                .from("approved_members")
-                .select("email")
-                .eq("email", value: email.lowercased())
-                .limit(1)
+                .from("membership_requests")
+                .select("status")
+                .eq("user_id", value: userId)
+                .single()
                 .execute()
-            let rows = try JSONDecoder().decode([[String: String]].self, from: response.data)
-            isApproved = !rows.isEmpty
+            struct StatusRow: Decodable { let status: String }
+            let row = try JSONDecoder().decode(StatusRow.self, from: response.data)
+            isApproved = row.status == "approved"
         } catch {
             isApproved = false
         }
@@ -268,6 +276,7 @@ class AppState: ObservableObject {
             )
             profileCache[userId] = currentUser
             isOnboarded = true
+            isApproved = true
             return
         }
 
@@ -290,6 +299,24 @@ class AppState: ObservableObject {
             currentUser = row.toUser()
             profileCache[userId] = currentUser
             isOnboarded = true
+            didJustApply = true
+
+            // Write profile info to membership_requests so admin can identify applicants
+            struct MembershipUpdate: Encodable {
+                let userId: UUID
+                let name: String
+                let username: String
+                enum CodingKeys: String, CodingKey {
+                    case userId = "user_id"
+                    case name
+                    case username
+                }
+            }
+            _ = try? await supabase
+                .from("membership_requests")
+                .upsert(MembershipUpdate(userId: userId, name: name, username: username), onConflict: "user_id")
+                .execute()
+
             if let data = avatarData {
                 await updateAvatar(data)
             }
@@ -401,6 +428,7 @@ class AppState: ObservableObject {
         do {
             let body = TeeTimeInsert(
                 hostId: user.id,
+                groupId: teeTime.groupId,
                 courseName: teeTime.courseName,
                 location: teeTime.courseLocation,
                 teeDate: dateFormatter.string(from: teeTime.date),
@@ -726,6 +754,157 @@ class AppState: ObservableObject {
         } catch {
             self.error = error.localizedDescription
         }
+    }
+
+    // MARK: - Groups
+
+    func fetchGroups(userId: UUID) async {
+        if devUserId != nil {
+            groups = HappyGroup.mockGroups
+            return
+        }
+        do {
+            let memberResp = try await supabase
+                .from("group_members")
+                .select("group_id, role")
+                .eq("user_id", value: userId)
+                .execute()
+            struct MembershipRow: Decodable {
+                let groupId: UUID; let role: String
+                enum CodingKeys: String, CodingKey { case groupId = "group_id"; case role }
+            }
+            let memberships = (try? JSONDecoder().decode([MembershipRow].self, from: memberResp.data)) ?? []
+
+            let groupResp = try await supabase.from("groups").select().execute()
+            let rows = try decoder.decode([GroupRow].self, from: groupResp.data)
+
+            let countResp = try? await supabase.from("group_members").select("group_id").execute()
+            struct CountRow: Decodable {
+                let groupId: UUID
+                enum CodingKeys: String, CodingKey { case groupId = "group_id" }
+            }
+            let countRows = (try? JSONDecoder().decode([CountRow].self, from: countResp?.data ?? Data())) ?? []
+            var memberCounts: [UUID: Int] = [:]
+            for r in countRows { memberCounts[r.groupId, default: 0] += 1 }
+
+            let myRoleMap = Dictionary(uniqueKeysWithValues: memberships.map {
+                ($0.groupId, GroupRole(rawValue: $0.role) ?? .member)
+            })
+            groups = rows.map { row in
+                row.toGroup(memberCount: memberCounts[row.id] ?? 0, myRole: myRoleMap[row.id])
+            }.sorted { $0.isMember && !$1.isMember }
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    func createGroup(name: String, description: String, emoji: String, isPrivate: Bool) async {
+        guard let userId = currentUser?.id ?? devUserId else { return }
+        if devUserId != nil {
+            let g = HappyGroup(id: UUID(), name: name, description: description, emoji: emoji,
+                               createdBy: userId, isPrivate: isPrivate, createdAt: Date(),
+                               memberCount: 1, myRole: .admin)
+            groups.insert(g, at: 0)
+            return
+        }
+        do {
+            let body = GroupInsert(name: name, description: description, emoji: emoji,
+                                   createdBy: userId, isPrivate: isPrivate)
+            let resp = try await supabase.from("groups").insert(body).single().execute()
+            let row = try decoder.decode(GroupRow.self, from: resp.data)
+            let g = row.toGroup(memberCount: 1, myRole: .admin)
+            groups.insert(g, at: 0)
+            let memberBody = GroupMemberInsert(groupId: g.id, userId: userId, role: "admin")
+            try? await supabase.from("group_members").insert(memberBody).execute()
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    func joinGroup(_ group: HappyGroup) async {
+        guard let userId = currentUser?.id ?? devUserId else { return }
+        if devUserId != nil {
+            if let idx = groups.firstIndex(where: { $0.id == group.id }) {
+                groups[idx].myRole = .member
+                groups[idx].memberCount += 1
+            }
+            return
+        }
+        do {
+            let body = GroupMemberInsert(groupId: group.id, userId: userId, role: "member")
+            try await supabase.from("group_members").insert(body).execute()
+            if let idx = groups.firstIndex(where: { $0.id == group.id }) {
+                groups[idx].myRole = .member
+                groups[idx].memberCount += 1
+            }
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    func leaveGroup(_ group: HappyGroup) async {
+        guard let userId = currentUser?.id ?? devUserId else { return }
+        if devUserId != nil {
+            if let idx = groups.firstIndex(where: { $0.id == group.id }) {
+                groups[idx].myRole = nil
+                groups[idx].memberCount = max(0, groups[idx].memberCount - 1)
+            }
+            return
+        }
+        do {
+            try await supabase.from("group_members").delete()
+                .eq("group_id", value: group.id).eq("user_id", value: userId).execute()
+            if let idx = groups.firstIndex(where: { $0.id == group.id }) {
+                groups[idx].myRole = nil
+                groups[idx].memberCount = max(0, groups[idx].memberCount - 1)
+            }
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    func inviteMemberToGroup(userId: UUID, groupId: UUID) async {
+        if devUserId != nil { return }
+        do {
+            let body = GroupMemberInsert(groupId: groupId, userId: userId, role: "member")
+            try await supabase.from("group_members").insert(body).execute()
+            if let idx = groups.firstIndex(where: { $0.id == groupId }) {
+                groups[idx].memberCount += 1
+            }
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    func fetchGroupMembers(groupId: UUID) async -> [GroupMember] {
+        if let cached = groupMembers[groupId] { return cached }
+        if devUserId != nil {
+            let members = [
+                GroupMember(id: UUID(), groupId: groupId, userId: User.jamesK.id, role: .admin, joinedAt: Date()),
+                GroupMember(id: UUID(), groupId: groupId, userId: User.marcusR.id, role: .member, joinedAt: Date())
+            ]
+            groupMembers[groupId] = members
+            return members
+        }
+        do {
+            let resp = try await supabase.from("group_members").select()
+                .eq("group_id", value: groupId).execute()
+            let rows = try decoder.decode([GroupMemberRow].self, from: resp.data)
+            let members = rows.map { $0.toGroupMember() }
+            groupMembers[groupId] = members
+            let ids = Set(members.map { $0.userId })
+            await withTaskGroup(of: Void.self) { group in
+                for id in ids { group.addTask { await self.fetchCachedProfile(userId: id) } }
+            }
+            return members
+        } catch {
+            self.error = error.localizedDescription
+            return []
+        }
+    }
+
+    func groupTeeTimes(groupId: UUID) -> [TeeTime] {
+        teeTimes.filter { $0.groupId == groupId }
     }
 
     // MARK: - Helpers

@@ -236,7 +236,57 @@ create policy "Either party can delete"
   using (auth.uid() = requester_id or auth.uid() = addressee_id);
 
 -- ────────────────────────────────────────────────────────────────────────────
--- 9. Avatar Storage Bucket
+-- 9. Membership Requests
+-- Captures every signup automatically via trigger — works for both
+-- Sign in with Apple (including relay emails) and email magic link.
+-- Admin approves members by setting status = 'approved' in the dashboard.
+-- ────────────────────────────────────────────────────────────────────────────
+
+create table if not exists membership_requests (
+  id             uuid primary key default gen_random_uuid(),
+  user_id        uuid not null unique references auth.users(id) on delete cascade,
+  email          text,                        -- may be Apple relay address
+  name           text,                        -- filled in after profile setup
+  username       text,                        -- unique — filled in after profile setup
+  auth_provider  text,                        -- 'apple' | 'email' | etc.
+  status         text not null default 'pending'
+                 check (status in ('pending','approved','declined')),
+  applied_at     timestamptz not null default now(),
+  reviewed_at    timestamptz
+);
+
+alter table membership_requests enable row level security;
+
+-- Users can read their own row (to check approval status)
+create policy "Users read own membership request"
+  on membership_requests for select using (auth.uid() = user_id);
+
+-- Users can update their own row (to fill in name after profile setup)
+create policy "Users update own membership request"
+  on membership_requests for update using (auth.uid() = user_id);
+
+-- Trigger: auto-create a membership_requests row on every new auth.users signup
+create or replace function handle_new_user_membership()
+returns trigger language plpgsql security definer as $$
+begin
+  insert into public.membership_requests (user_id, email, auth_provider)
+  values (
+    new.id,
+    new.email,
+    new.raw_app_meta_data->>'provider'
+  )
+  on conflict (user_id) do nothing;
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created_membership on auth.users;
+create trigger on_auth_user_created_membership
+  after insert on auth.users
+  for each row execute function handle_new_user_membership();
+
+-- ────────────────────────────────────────────────────────────────────────────
+-- 10. Avatar Storage Bucket
 -- ────────────────────────────────────────────────────────────────────────────
 
 -- Run this separately in the Supabase Storage UI or via the API:
@@ -246,3 +296,76 @@ create policy "Either party can delete"
 -- insert policy: auth.uid()::text = (storage.foldername(name))[1]
 -- select policy: true (public)
 -- delete policy: auth.uid()::text = (storage.foldername(name))[1]
+
+-- ────────────────────────────────────────────────────────────────────────────
+-- 11. Groups
+-- ────────────────────────────────────────────────────────────────────────────
+
+create table if not exists groups (
+  id          uuid primary key default gen_random_uuid(),
+  name        text        not null,
+  description text        not null default '',
+  emoji       text        not null default '⛳',
+  created_by  uuid        not null references profiles(id) on delete cascade,
+  is_private  boolean     not null default false,
+  created_at  timestamptz not null default now()
+);
+
+alter table groups enable row level security;
+
+create policy "Groups readable by all"
+  on groups for select using (true);
+
+create policy "Members can insert groups"
+  on groups for insert with check (auth.uid() = created_by);
+
+create policy "Admin can update group"
+  on groups for update
+  using (auth.uid() in (
+    select user_id from group_members
+    where group_id = id and role = 'admin'
+  ));
+
+-- ────────────────────────────────────────────────────────────────────────────
+-- 12. Group Members
+-- ────────────────────────────────────────────────────────────────────────────
+
+create table if not exists group_members (
+  id         uuid primary key default gen_random_uuid(),
+  group_id   uuid not null references groups(id) on delete cascade,
+  user_id    uuid not null references profiles(id) on delete cascade,
+  role       text not null default 'member'
+             check (role in ('admin','member')),
+  joined_at  timestamptz not null default now(),
+  unique (group_id, user_id)
+);
+
+alter table group_members enable row level security;
+
+create policy "Group members readable by all"
+  on group_members for select using (true);
+
+create policy "Members can join public groups"
+  on group_members for insert
+  with check (
+    auth.uid() = user_id
+    and (
+      select not is_private from groups where id = group_id
+    )
+  );
+
+create policy "Admins can add members"
+  on group_members for insert
+  with check (
+    auth.uid() in (
+      select user_id from group_members
+      where group_id = group_id and role = 'admin'
+    )
+  );
+
+create policy "Members can leave"
+  on group_members for delete
+  using (auth.uid() = user_id);
+
+-- Add group_id to tee_times
+alter table tee_times add column if not exists group_id uuid references groups(id) on delete set null;

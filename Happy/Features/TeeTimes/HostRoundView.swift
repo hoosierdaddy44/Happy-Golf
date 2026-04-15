@@ -14,6 +14,7 @@ struct HostRoundView: View {
     @State private var tees = "Blue"
     @State private var notes = ""
     @State private var submitted = false
+    @State private var selectedGroupId: UUID? = nil
 
     private let teesOptions = ["Championship", "Blue", "White", "Gold", "Red"]
 
@@ -137,6 +138,55 @@ struct HostRoundView: View {
 
                     HappyDivider()
 
+                    // Post to Group
+                    let myGroups = appState.groups.filter { $0.isMember }
+                    if !myGroups.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Post to Group (Optional)".uppercased())
+                                .font(HappyFont.formLabel)
+                                .tracking(1.4)
+                                .foregroundColor(.happyGreen)
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: HappySpacing.xs) {
+                                    Button {
+                                        selectedGroupId = nil
+                                    } label: {
+                                        Text("None")
+                                            .font(HappyFont.bodyMedium(size: 13))
+                                            .foregroundColor(selectedGroupId == nil ? .happyCream : .happyGreen)
+                                            .padding(.vertical, 10)
+                                            .padding(.horizontal, HappySpacing.md)
+                                            .background(selectedGroupId == nil ? Color.happyGreen : Color.happyCream)
+                                            .cornerRadius(HappyRadius.input)
+                                            .overlay(RoundedRectangle(cornerRadius: HappyRadius.input).stroke(selectedGroupId == nil ? Color.clear : Color.happySandLight, lineWidth: 1))
+                                    }
+                                    .buttonStyle(.plain)
+                                    ForEach(myGroups) { group in
+                                        Button {
+                                            selectedGroupId = group.id
+                                        } label: {
+                                            HStack(spacing: 5) {
+                                                Text(group.emoji)
+                                                    .font(.system(size: 13))
+                                                Text(group.name)
+                                                    .font(HappyFont.bodyMedium(size: 13))
+                                                    .foregroundColor(selectedGroupId == group.id ? .happyCream : .happyGreen)
+                                            }
+                                            .padding(.vertical, 10)
+                                            .padding(.horizontal, HappySpacing.md)
+                                            .background(selectedGroupId == group.id ? Color.happyGreen : Color.happyCream)
+                                            .cornerRadius(HappyRadius.input)
+                                            .overlay(RoundedRectangle(cornerRadius: HappyRadius.input).stroke(selectedGroupId == group.id ? Color.clear : Color.happySandLight, lineWidth: 1))
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+                                }
+                            }
+                        }
+
+                        HappyDivider()
+                    }
+
                     // Notes
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Notes (Optional)".uppercased())
@@ -223,6 +273,7 @@ struct HostRoundView: View {
         guard let user = appState.currentUser else { return }
         let tt = TeeTime(
             hostId: user.id,
+            groupId: selectedGroupId,
             courseName: courseName,
             courseLocation: courseLocation,
             date: date,
@@ -256,7 +307,7 @@ struct HostRoundView: View {
             }
             HappyOutlineButton(title: "Post Another Round") {
                 courseName = ""; courseLocation = ""; notes = ""
-                openSpots = 2; carryMode = .walking
+                openSpots = 2; carryMode = .walking; selectedGroupId = nil
                 withAnimation { submitted = false }
             }
             Spacer()

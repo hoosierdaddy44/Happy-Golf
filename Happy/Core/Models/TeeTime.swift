@@ -3,6 +3,7 @@ import Foundation
 struct TeeTime: Identifiable, Hashable {
     let id: UUID
     var hostId: UUID
+    var groupId: UUID?
     var courseName: String
     var courseLocation: String
     var date: Date
@@ -51,6 +52,7 @@ struct TeeTime: Identifiable, Hashable {
     init(
         id: UUID = UUID(),
         hostId: UUID,
+        groupId: UUID? = nil,
         courseName: String,
         courseLocation: String,
         date: Date,
@@ -67,6 +69,7 @@ struct TeeTime: Identifiable, Hashable {
     ) {
         self.id = id
         self.hostId = hostId
+        self.groupId = groupId
         self.courseName = courseName
         self.courseLocation = courseLocation
         self.date = date

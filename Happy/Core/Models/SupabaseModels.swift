@@ -23,6 +23,7 @@ struct ProfileInsert: Encodable {
 
 struct TeeTimeInsert: Encodable {
     let hostId: UUID
+    let groupId: UUID?
     let courseName: String
     let location: String
     let teeDate: String
@@ -34,6 +35,7 @@ struct TeeTimeInsert: Encodable {
 
     enum CodingKeys: String, CodingKey {
         case hostId     = "host_id"
+        case groupId    = "group_id"
         case courseName = "course_name"
         case location
         case teeDate    = "tee_date"
@@ -93,6 +95,7 @@ struct ProfileRow: Codable {
 struct TeeTimeRow: Codable {
     let id: UUID
     let hostId: UUID
+    let groupId: UUID?
     let courseName: String
     let location: String?
     let teeDate: String      // "2026-04-20"
@@ -107,6 +110,7 @@ struct TeeTimeRow: Codable {
     enum CodingKeys: String, CodingKey {
         case id
         case hostId      = "host_id"
+        case groupId     = "group_id"
         case courseName  = "course_name"
         case location
         case teeDate     = "tee_date"
@@ -125,6 +129,7 @@ struct TeeTimeRow: Codable {
         return TeeTime(
             id: id,
             hostId: hostId,
+            groupId: groupId,
             courseName: courseName,
             courseLocation: location ?? "",
             date: date,
@@ -303,5 +308,75 @@ struct FriendshipRow: Codable {
             status: FriendshipStatus(rawValue: status) ?? .pending,
             createdAt: createdAt
         )
+    }
+}
+
+// MARK: - Group Row Types
+
+struct GroupRow: Codable {
+    let id: UUID
+    let name: String
+    let description: String?
+    let emoji: String
+    let createdBy: UUID
+    let isPrivate: Bool
+    let createdAt: Date
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, description, emoji
+        case createdBy  = "created_by"
+        case isPrivate  = "is_private"
+        case createdAt  = "created_at"
+    }
+
+    func toGroup(memberCount: Int = 0, myRole: GroupRole? = nil) -> HappyGroup {
+        HappyGroup(
+            id: id, name: name, description: description ?? "",
+            emoji: emoji, createdBy: createdBy, isPrivate: isPrivate,
+            createdAt: createdAt, memberCount: memberCount, myRole: myRole
+        )
+    }
+}
+
+struct GroupInsert: Encodable {
+    let name: String
+    let description: String
+    let emoji: String
+    let createdBy: UUID
+    let isPrivate: Bool
+    enum CodingKeys: String, CodingKey {
+        case name, description, emoji
+        case createdBy = "created_by"
+        case isPrivate = "is_private"
+    }
+}
+
+struct GroupMemberRow: Codable {
+    let id: UUID
+    let groupId: UUID
+    let userId: UUID
+    let role: String
+    let joinedAt: Date
+    enum CodingKeys: String, CodingKey {
+        case id
+        case groupId  = "group_id"
+        case userId   = "user_id"
+        case role
+        case joinedAt = "joined_at"
+    }
+    func toGroupMember() -> GroupMember {
+        GroupMember(id: id, groupId: groupId, userId: userId,
+                    role: GroupRole(rawValue: role) ?? .member, joinedAt: joinedAt)
+    }
+}
+
+struct GroupMemberInsert: Encodable {
+    let groupId: UUID
+    let userId: UUID
+    let role: String
+    enum CodingKeys: String, CodingKey {
+        case groupId = "group_id"
+        case userId  = "user_id"
+        case role
     }
 }

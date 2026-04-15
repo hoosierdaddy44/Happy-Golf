@@ -204,6 +204,9 @@ struct ProfileSetupView: View {
                     )
                 }
 
+                // TODO: Username is collected pre-approval so we have a unique identifier
+                // for the admin dashboard. Move this to post-approval onboarding when
+                // the membership flow is more mature.
                 VStack(alignment: .leading, spacing: 4) {
                     HappyTextField(
                         label: "Username",

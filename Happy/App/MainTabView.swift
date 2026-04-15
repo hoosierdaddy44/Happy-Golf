@@ -22,13 +22,17 @@ struct MainTabView: View {
                 .badge(pendingBadge > 0 ? pendingBadge : 0)
                 .tag(2)
 
+            GroupsView()
+                .tabItem { Label("Groups", systemImage: "person.3.fill") }
+                .tag(3)
+
             ActivityFeedView()
                 .tabItem { Label("Activity", systemImage: "bell") }
-                .tag(3)
+                .tag(4)
 
             ProfileView()
                 .tabItem { Label("Profile", systemImage: "person.circle") }
-                .tag(4)
+                .tag(5)
         }
         .tint(.happyGreen)
         .sheet(item: Binding(

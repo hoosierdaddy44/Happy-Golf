@@ -773,6 +773,56 @@
     letter-spacing: 0.04em;
   }
 
+  /* GROUPS */
+  .groups-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  @media (min-width: 640px) {
+    .groups-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .group-feature-card {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+    padding: 28px;
+    background: var(--white);
+    border-radius: 20px;
+    border: 1px solid var(--sand-light);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+  }
+
+  .group-feature-card:hover {
+    box-shadow: 0 8px 32px rgba(28, 61, 43, 0.09);
+    transform: translateY(-2px);
+  }
+
+  .group-feature-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .group-feature-body strong {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--green);
+    margin-bottom: 8px;
+  }
+
+  .group-feature-body p {
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
   /* ANIMATIONS */
   .fade-up {
     opacity: 0;
@@ -809,7 +859,7 @@
   <div class="hero-inner">
     <div class="badge fade-up">
       <span class="badge-dot"></span>
-      NYC Beta &nbsp;·&nbsp; Invite Only
+      Tri-State & South Florida Beta &nbsp;·&nbsp; Invite Only
     </div>
     <p class="hero-eyebrow fade-up" style="transition-delay:0.08s">Golf with people you actually like</p>
     <h1 class="fade-up" style="transition-delay:0.16s">Doesn't that make<br>you <em>happy?</em></h1>
@@ -817,7 +867,7 @@
     <p class="hero-sub fade-up" style="transition-delay:0.32s">Happy is a private network for curated golf rounds. Play with people who match your skill, pace, and vibe — and build a reputation that opens better doors.</p>
     <div class="hero-actions fade-up" style="transition-delay:0.42s">
       <a href="#access" class="hero-cta">Request Access →</a>
-      <span class="hero-sub-note">Limited NYC beta · Members approved individually</span>
+      <span class="hero-sub-note">Tri-State area & South Florida beta · Members approved individually</span>
     </div>
   </div>
   <div class="hero-scroll">
@@ -854,6 +904,44 @@
   </div>
 </div>
 </div>
+
+<!-- GROUPS -->
+<section style="padding: 100px 24px;">
+  <div class="container">
+    <div class="section-label fade-up">Your Circle</div>
+    <div class="section-title fade-up" style="transition-delay:0.08s">Golf is better when<br>you know <em>everyone</em> in the group.</div>
+    <div style="display:grid;grid-template-columns:1fr;gap:20px;max-width:800px;" class="groups-grid">
+      <div class="group-feature-card fade-up" style="transition-delay:0.12s">
+        <div class="group-feature-icon">🤝</div>
+        <div class="group-feature-body">
+          <strong>Your private circles</strong>
+          <p>Groups are invite-only spaces for your actual network — the people you actually want to play with, round after round.</p>
+        </div>
+      </div>
+      <div class="group-feature-card fade-up" style="transition-delay:0.2s">
+        <div class="group-feature-icon">🔒</div>
+        <div class="group-feature-body">
+          <strong>Post rounds exclusively to your group</strong>
+          <p>Keep certain rounds off the public feed. Post to your group only — so the right people see the right rounds.</p>
+        </div>
+      </div>
+      <div class="group-feature-card fade-up" style="transition-delay:0.28s">
+        <div class="group-feature-icon">🌿</div>
+        <div class="group-feature-body">
+          <strong>Invite people you meet on the course</strong>
+          <p>Played a great round with someone new? Add them to your group. Build your network one great round at a time.</p>
+        </div>
+      </div>
+      <div class="group-feature-card fade-up" style="transition-delay:0.36s">
+        <div class="group-feature-icon">🚫</div>
+        <div class="group-feature-body">
+          <strong>No randoms — even within your network</strong>
+          <p>Every group is curated. Even when you expand your circle, every new face is someone you chose to let in.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- PRODUCT PREVIEW -->
 <section class="preview-section">
@@ -1012,7 +1100,7 @@
     </div>
 
     <button class="form-submit" onclick="handleSubmit(this)">Request Access →</button>
-    <p class="form-note">Limited NYC beta. We're accepting a small number of members to start.<br>happy.golf</p>
+    <p class="form-note">Tri-State area & South Florida beta. We're accepting a small number of members to start.<br>happy.golf</p>
   </div>
 </section>
 
@@ -1023,7 +1111,7 @@
     <div class="footer-logo-text">Happy</div>
   </div>
   <div class="footer-domain">happy.golf</div>
-  <div class="footer-copy">© 2025 Happy. Private network. NYC Beta.</div>
+  <div class="footer-copy">© 2025 Happy. Private network. Tri-State & South Florida Beta.</div>
 </footer>
 
 <script>
@@ -1042,7 +1130,7 @@
     });
   }, { threshold: 0.12 });
 
-  document.querySelectorAll('.step, .why-item, .round-card, .form-wrap').forEach(el => observer.observe(el));
+  document.querySelectorAll('.step, .why-item, .round-card, .form-wrap, .group-feature-card, .fade-up:not(.hero .fade-up)').forEach(el => observer.observe(el));
 
   // Form submit
   function handleSubmit(btn) {
