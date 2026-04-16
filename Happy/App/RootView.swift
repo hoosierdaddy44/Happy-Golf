@@ -9,7 +9,9 @@ struct RootView: View {
             if !authManager.isReady {
                 SplashView()
             } else if authManager.isSignedIn {
-                if appState.isOnboarded {
+                if appState.isLoading {
+                    SplashView()
+                } else if appState.isOnboarded {
                     if appState.isApproved {
                         MainTabView()
                     } else {
@@ -31,6 +33,7 @@ struct RootView: View {
             if signedIn {
                 let userId = authManager.session?.user.id ?? UUID()
                 if authManager.devBypass { appState.devUserId = userId }
+                appState.isLoading = true
                 Task {
                     await appState.load(userId: userId)
                     appState.subscribeToRealtime(userId: userId)
