@@ -26,13 +26,9 @@ struct MainTabView: View {
                 .tabItem { Label("Groups", systemImage: "person.3.fill") }
                 .tag(3)
 
-            ActivityFeedView()
-                .tabItem { Label("Activity", systemImage: "bell") }
-                .tag(4)
-
             ProfileView()
                 .tabItem { Label("Profile", systemImage: "person.circle") }
-                .tag(5)
+                .tag(4)
         }
         .tint(.happyGreen)
         .sheet(item: Binding(
