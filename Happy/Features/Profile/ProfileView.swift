@@ -10,7 +10,6 @@ struct ProfileView: View {
     @State private var showPlayerSearch = false
     @State private var showEditProfile = false
     @State private var showDeleteConfirm = false
-    @State private var showActivity = false
 
     private var user: User? { appState.currentUser }
     private var myAccolades: [Accolade] { appState.accolades[user?.id ?? UUID()] ?? [] }
@@ -40,9 +39,6 @@ struct ProfileView: View {
                     if let user = appState.currentUser {
                         EditProfileSheet(user: user).environmentObject(appState)
                     }
-                }
-                .sheet(isPresented: $showActivity) {
-                    ActivityFeedView().environmentObject(appState)
                 }
                 .alert("Delete Account", isPresented: $showDeleteConfirm) {
                     Button("Delete", role: .destructive) {
@@ -262,26 +258,6 @@ struct ProfileView: View {
                         }
                     }
                 }
-
-                HappyDivider()
-
-                // Activity Feed
-                Button { showActivity = true } label: {
-                    HStack {
-                        Image(systemName: "bell")
-                            .font(.system(size: 15))
-                            .foregroundColor(.happyGreen)
-                        Text("Activity Feed")
-                            .font(HappyFont.bodyMedium(size: 14))
-                            .foregroundColor(.happyGreen)
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 12))
-                            .foregroundColor(.happyMuted)
-                    }
-                    .padding(.vertical, HappySpacing.sm)
-                }
-                .buttonStyle(.plain)
 
                 HappyDivider()
 

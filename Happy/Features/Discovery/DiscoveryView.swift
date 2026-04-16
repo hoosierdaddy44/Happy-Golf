@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DiscoveryView: View {
     @EnvironmentObject var appState: AppState
+    @State private var discoverTab = 0
     @State private var filter: DateFilter = .all
     @State private var selectedTeeTime: TeeTime?
     @State private var showPlayerSearch = false
@@ -84,67 +85,72 @@ struct DiscoveryView: View {
                 VStack(spacing: 0) {
                     navHeader
 
-                    ScrollView(showsIndicators: false) {
-                        LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
-                            // Friends' Rounds — always visible
-                            Section {
-                                if friendRounds.isEmpty {
-                                    friendsEmptyState
-                                        .padding(.horizontal, HappySpacing.xl)
-                                        .padding(.bottom, HappySpacing.md)
-                                } else {
-                                    ForEach(friendRounds) { tt in
-                                        TeeTimeCard(teeTime: tt)
-                                            .padding(.horizontal, HappySpacing.xl)
-                                            .padding(.bottom, HappySpacing.md)
-                                            .contentShape(Rectangle())
-                                            .onTapGesture { selectedTeeTime = tt }
-                                    }
-                                }
-                            } header: {
-                                sectionHeader("Friends' Rounds", icon: "person.2.fill")
-                            }
-
-                            // Open Rounds — expand your network
-                            Section {
-                                if forYouRounds.isEmpty {
-                                    Text("No open rounds right now.")
-                                        .font(HappyFont.bodyLight(size: 14))
-                                        .foregroundColor(.happyMuted)
-                                        .italic()
-                                        .padding(.horizontal, HappySpacing.xl)
-                                        .padding(.bottom, HappySpacing.md)
-                                } else {
-                                    ForEach(forYouRounds) { tt in
-                                        TeeTimeCard(teeTime: tt)
-                                            .padding(.horizontal, HappySpacing.xl)
-                                            .padding(.bottom, HappySpacing.md)
-                                            .contentShape(Rectangle())
-                                            .onTapGesture { selectedTeeTime = tt }
-                                    }
-                                }
-                            } header: {
-                                sectionHeader("Expand Your Network", icon: "magnifyingglass")
-                            }
-
-                            // Recently Played
-                            if !completedRounds.isEmpty {
+                    if discoverTab == 0 {
+                        ScrollView(showsIndicators: false) {
+                            LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
+                                // Friends' Rounds
                                 Section {
-                                    ForEach(completedRounds) { tt in
-                                        CompletedRoundCard(teeTime: tt)
+                                    if friendRounds.isEmpty {
+                                        friendsEmptyState
                                             .padding(.horizontal, HappySpacing.xl)
-                                            .padding(.bottom, HappySpacing.sm)
+                                            .padding(.bottom, HappySpacing.md)
+                                    } else {
+                                        ForEach(friendRounds) { tt in
+                                            TeeTimeCard(teeTime: tt)
+                                                .padding(.horizontal, HappySpacing.xl)
+                                                .padding(.bottom, HappySpacing.md)
+                                                .contentShape(Rectangle())
+                                                .onTapGesture { selectedTeeTime = tt }
+                                        }
                                     }
                                 } header: {
-                                    sectionHeader("Recently Played", icon: "flag.checkered")
+                                    sectionHeader("Friends' Rounds", icon: "person.2.fill")
                                 }
-                            }
 
-                            Spacer().frame(height: HappySpacing.section)
+                                // Open Rounds
+                                Section {
+                                    if forYouRounds.isEmpty {
+                                        Text("No open rounds right now.")
+                                            .font(HappyFont.bodyLight(size: 14))
+                                            .foregroundColor(.happyMuted)
+                                            .italic()
+                                            .padding(.horizontal, HappySpacing.xl)
+                                            .padding(.bottom, HappySpacing.md)
+                                    } else {
+                                        ForEach(forYouRounds) { tt in
+                                            TeeTimeCard(teeTime: tt)
+                                                .padding(.horizontal, HappySpacing.xl)
+                                                .padding(.bottom, HappySpacing.md)
+                                                .contentShape(Rectangle())
+                                                .onTapGesture { selectedTeeTime = tt }
+                                        }
+                                    }
+                                } header: {
+                                    sectionHeader("Expand Your Network", icon: "magnifyingglass")
+                                }
+
+                                // Recently Played
+                                if !completedRounds.isEmpty {
+                                    Section {
+                                        ForEach(completedRounds) { tt in
+                                            CompletedRoundCard(teeTime: tt)
+                                                .padding(.horizontal, HappySpacing.xl)
+                                                .padding(.bottom, HappySpacing.sm)
+                                        }
+                                    } header: {
+                                        sectionHeader("Recently Played", icon: "flag.checkered")
+                                    }
+                                }
+
+                                Spacer().frame(height: HappySpacing.section)
+                            }
+                            .padding(.top, HappySpacing.md)
                         }
-                        .padding(.top, HappySpacing.md)
+                        .refreshable { await appState.refresh() }
+                    } else {
+                        ActivityFeedView()
+                            .environmentObject(appState)
                     }
-                    .refreshable { await appState.refresh() }
                 }
             }
             .navigationDestination(item: $selectedTeeTime) { tt in
@@ -199,17 +205,43 @@ struct DiscoveryView: View {
                 .buttonStyle(.plain)
             }
 
-            HStack(spacing: HappySpacing.xs) {
-                ForEach(DateFilter.allCases, id: \.self) { f in
-                    filterPill(f)
+            // Segmented control
+            HStack(spacing: 2) {
+                segmentBtn("Rounds", index: 0)
+                segmentBtn("Activity", index: 1)
+            }
+            .padding(3)
+            .background(Color.happySandLight.opacity(0.6))
+            .cornerRadius(HappyRadius.input + 3)
+
+            if discoverTab == 0 {
+                HStack(spacing: HappySpacing.xs) {
+                    ForEach(DateFilter.allCases, id: \.self) { f in
+                        filterPill(f)
+                    }
+                    Spacer()
                 }
-                Spacer()
             }
         }
         .padding(.horizontal, HappySpacing.xl)
         .padding(.top, HappySpacing.xl)
         .padding(.bottom, HappySpacing.md)
         .background(Color.happyCream)
+    }
+
+    private func segmentBtn(_ title: String, index: Int) -> some View {
+        Button {
+            withAnimation(.easeOut(duration: 0.2)) { discoverTab = index }
+        } label: {
+            Text(title)
+                .font(HappyFont.bodyMedium(size: 13))
+                .foregroundColor(discoverTab == index ? .happyCream : .happyMuted)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 9)
+                .background(discoverTab == index ? Color.happyGreen : Color.clear)
+                .cornerRadius(HappyRadius.input)
+        }
+        .buttonStyle(.plain)
     }
 
     private func filterPill(_ f: DateFilter) -> some View {
