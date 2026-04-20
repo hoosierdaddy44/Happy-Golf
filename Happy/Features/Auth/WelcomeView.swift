@@ -27,7 +27,7 @@ struct WelcomeView: View {
                     Spacer().frame(height: 60)
 
                     // Badge
-                    HappyBadge(text: "Tri-State & South FL Beta · Invite Only", showDot: true)
+                    HappyBadge(text: "Tri-State, South FL & California Beta · Invite Only", showDot: true)
                         .shadow(color: Color.black.opacity(0.05), radius: 8, y: 2)
                         .opacity(appear ? 1 : 0)
                         .offset(y: appear ? 0 : 18)
@@ -133,7 +133,7 @@ struct WelcomeView: View {
                         .offset(y: appear ? 0 : 16)
                         .animation(HappyAnimation.pageLoad.delay(0.51), value: appear)
 
-                        Text("Tri-State area & South Florida beta · Members approved individually")
+                        Text("Tri-State, South Florida & California beta · Members approved individually")
                             .font(.system(size: 11))
                             .foregroundColor(.happyMuted)
                             .tracking(0.3)
