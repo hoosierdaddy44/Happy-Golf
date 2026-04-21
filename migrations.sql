@@ -378,6 +378,13 @@ alter table tee_times add column if not exists format text not null default 'str
   check (format in ('stroke_play','match_play','skins','scramble','best_ball'));
 
 -- ────────────────────────────────────────────────────────────────────────────
+-- 14. Waitlist (website form submissions — table already exists in Supabase)
+-- Ensure anon insert is allowed via RLS policy:
+--   create policy "Anyone can submit to waitlist"
+--     on waitlist for insert with check (true);
+-- ────────────────────────────────────────────────────────────────────────────
+
+-- ────────────────────────────────────────────────────────────────────────────
 -- 14. Score Verifications
 -- ────────────────────────────────────────────────────────────────────────────
 

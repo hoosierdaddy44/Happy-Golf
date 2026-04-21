@@ -211,12 +211,13 @@ struct MyRoundsView: View {
                     Text(tt.courseName)
                         .font(HappyFont.displayMedium(size: 18))
                         .foregroundColor(.happyGreen)
-                    HStack(spacing: 6) {
-                        Text(tt.dateDisplay)
-                        Text("·")
-                        Text(tt.teeTimeString)
-                        if let tees = tt.tees {
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack(spacing: 6) {
+                            Text(tt.dateDisplay)
                             Text("·")
+                            Text(tt.teeTimeString)
+                        }
+                        if let tees = tt.tees {
                             Text(tees)
                         }
                     }

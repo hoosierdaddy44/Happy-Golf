@@ -96,7 +96,8 @@ class AppState: ObservableObject {
         async let profileTask: () = fetchProfile(userId: userId)
         async let teeTimesTask: () = fetchTeeTimes()
         async let activityTask: () = fetchActivity()
-        _ = await (profileTask, teeTimesTask, activityTask)
+        async let approvalTask: () = checkApproval()
+        _ = await (profileTask, teeTimesTask, activityTask, approvalTask)
         if currentUser != nil {
             await fetchJoinRequests(userId: userId)
             await fetchFriendships(userId: userId)
@@ -104,7 +105,6 @@ class AppState: ObservableObject {
             await fetchMyScores(userId: userId)
             checkPendingRatingPrompts(userId: userId)
             await fetchAccolades(for: userId)
-            await checkApproval()
         }
         isLoading = false
     }
@@ -336,7 +336,7 @@ class AppState: ObservableObject {
         }
     }
 
-    func updateProfile(name: String, username: String, handicap: Double, industry: String, pace: PacePref, homeCourse: String, avatarData: Data? = nil) async {
+    func updateProfile(name: String, username: String, handicap: Double, industry: String, pace: PacePref, homeCourse: String, avatarData: Data? = nil, instagramHandle: String? = nil) async {
         guard var user = currentUser else { return }
         user.name = name
         user.username = username
@@ -344,6 +344,7 @@ class AppState: ObservableObject {
         user.industry = industry
         user.pacePreference = pace
         user.homeCourses = homeCourse.isEmpty ? [] : [homeCourse]
+        user.instagramHandle = instagramHandle.flatMap { $0.isEmpty ? nil : $0 }
         currentUser = user
         profileCache[user.id] = user
 
@@ -352,16 +353,20 @@ class AppState: ObservableObject {
             return
         }
         do {
+            var updateFields: [String: String] = [
+                "name": name,
+                "username": username,
+                "handicap_index": String(handicap),
+                "industry": industry,
+                "pace_preference": pace.rawValue.lowercased(),
+                "home_courses": "{\(homeCourse)}"
+            ]
+            if let ig = instagramHandle, !ig.isEmpty {
+                updateFields["instagram_handle"] = ig
+            }
             try await supabase
                 .from("profiles")
-                .update([
-                    "name": name,
-                    "username": username,
-                    "handicap_index": String(handicap),
-                    "industry": industry,
-                    "pace_preference": pace.rawValue.lowercased(),
-                    "home_courses": "{\(homeCourse)}"
-                ])
+                .update(updateFields)
                 .eq("id", value: user.id)
                 .execute()
             if let data = avatarData { await updateAvatar(data) }
@@ -475,12 +480,16 @@ class AppState: ObservableObject {
         }
 
         do {
+            var body: [String: String] = [
+                "tee_time_id": teeTime.id.uuidString,
+                "requester_id": user.id.uuidString
+            ]
+            if let note = note, !note.trimmingCharacters(in: .whitespaces).isEmpty {
+                body["note"] = note
+            }
             let response = try await supabase
                 .from("join_requests")
-                .insert([
-                    "tee_time_id": teeTime.id.uuidString,
-                    "requester_id": user.id.uuidString
-                ])
+                .insert(body)
                 .single()
                 .execute()
             let row = try decoder.decode(JoinRequestRow.self, from: response.data)
@@ -1150,6 +1159,31 @@ class AppState: ObservableObject {
 
     func teeTime(for id: UUID) -> TeeTime? {
         teeTimes.first(where: { $0.id == id })
+    }
+
+    func inviteToRound(teeTimeId: UUID, userIds: [UUID]) async {
+        guard !userIds.isEmpty else { return }
+        // Dev mode: directly add players to the tee time in-memory
+        if devUserId != nil {
+            if let idx = teeTimes.firstIndex(where: { $0.id == teeTimeId }) {
+                for uid in userIds where !teeTimes[idx].players.contains(uid) {
+                    teeTimes[idx].players.append(uid)
+                    teeTimes[idx].openSpots = max(0, teeTimes[idx].openSpots - 1)
+                }
+            }
+            return
+        }
+        // Supabase: insert pre-approved join requests
+        for uid in userIds {
+            _ = try? await supabase
+                .from("join_requests")
+                .insert([
+                    "tee_time_id": teeTimeId.uuidString,
+                    "requester_id": uid.uuidString,
+                    "status": "approved"
+                ])
+                .execute()
+        }
     }
 
     private func logActivity(type: ActivityType, teeTimeId: UUID) async {

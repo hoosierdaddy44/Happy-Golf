@@ -62,6 +62,7 @@ struct ProfileRow: Codable {
     let rating: Double?
     let ratingCount: Int?
     let avatarUrl: String?
+    let instagramHandle: String?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -76,6 +77,7 @@ struct ProfileRow: Codable {
         case rating
         case ratingCount     = "rating_count"
         case avatarUrl       = "avatar_url"
+        case instagramHandle = "instagram_handle"
     }
 
     func toUser() -> User {
@@ -89,7 +91,8 @@ struct ProfileRow: Codable {
             homeCourses: homeCourses,
             joinedAt: memberSince,
             rating: rating,
-            ratingCount: ratingCount ?? 0
+            ratingCount: ratingCount ?? 0,
+            instagramHandle: instagramHandle
         )
     }
 }

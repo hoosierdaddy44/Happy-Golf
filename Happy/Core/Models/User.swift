@@ -15,6 +15,7 @@ struct User: Identifiable, Equatable {
     let joinedAt: Date
     var rating: Double?
     var ratingCount: Int
+    var instagramHandle: String?
 
     var initials: String {
         let parts = name.split(separator: " ")
@@ -45,7 +46,8 @@ struct User: Identifiable, Equatable {
         avatarImageData: Data? = nil,
         joinedAt: Date = Date(),
         rating: Double? = nil,
-        ratingCount: Int = 0
+        ratingCount: Int = 0,
+        instagramHandle: String? = nil
     ) {
         self.id = id
         self.email = email
@@ -61,6 +63,7 @@ struct User: Identifiable, Equatable {
         self.joinedAt = joinedAt
         self.rating = rating
         self.ratingCount = ratingCount
+        self.instagramHandle = instagramHandle
     }
 }
 

@@ -1157,18 +1157,23 @@
     </div>
 
     <div class="form-group">
-      <label class="form-label">Full Name</label>
-      <input type="text" class="form-input" placeholder="Your name">
+      <label class="form-label" for="field-name">Full Name *</label>
+      <input type="text" id="field-name" class="form-input" placeholder="Your name" required>
     </div>
 
     <div class="form-group">
-      <label class="form-label">Phone Number</label>
-      <input type="tel" class="form-input" placeholder="+1 (212) 000-0000">
+      <label class="form-label" for="field-email">Email *</label>
+      <input type="email" id="field-email" class="form-input" placeholder="you@example.com" required>
     </div>
 
     <div class="form-group">
-      <label class="form-label">Handicap Index</label>
-      <input type="number" class="form-input" placeholder="e.g. 8.4" step="0.1" min="0" max="54">
+      <label class="form-label" for="field-phone">Phone Number</label>
+      <input type="tel" id="field-phone" class="form-input" placeholder="+1 (212) 000-0000">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="field-handicap">Handicap Index</label>
+      <input type="number" id="field-handicap" class="form-input" placeholder="e.g. 8.4" step="0.1" min="0" max="54">
     </div>
 
     <div class="form-group">
@@ -1199,12 +1204,36 @@
     </div>
 
     <div class="form-group">
-      <label class="form-label">Where do you usually play?</label>
-      <input type="text" class="form-input" placeholder="e.g. Bethpage, Winged Foot, public courses in LI">
+      <label class="form-label" for="field-courses">Where do you usually play?</label>
+      <input type="text" id="field-courses" class="form-input" placeholder="e.g. Bethpage, Winged Foot, public courses in LI">
     </div>
 
-    <button class="form-submit" onclick="handleSubmit(this)">Request Access →</button>
-    <p class="form-note">Tri-State, South Florida & California beta. We're accepting a small number of members to start.<br>happy.golf</p>
+    <div class="form-group">
+      <label class="form-label" for="field-industry">Industry</label>
+      <input type="text" id="field-industry" class="form-input" placeholder="e.g. Finance, Tech, Law">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="field-job">Job Title</label>
+      <input type="text" id="field-job" class="form-input" placeholder="e.g. Managing Director, Founder">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="field-location">Location</label>
+      <input type="text" id="field-location" class="form-input" placeholder="e.g. New York, NY">
+    </div>
+
+    <div class="form-group" style="display:flex;align-items:flex-start;gap:10px;padding:4px 0;">
+      <input type="checkbox" id="field-consent" style="margin-top:3px;accent-color:var(--green);width:15px;height:15px;flex-shrink:0;cursor:pointer;">
+      <label for="field-consent" style="font-size:12px;color:var(--muted);line-height:1.6;cursor:pointer;">
+        I agree to receive occasional updates from Happy about the beta and new features.
+      </label>
+    </div>
+
+    <div id="form-error" style="display:none;color:#c0392b;font-size:13px;margin-bottom:12px;padding:10px 14px;background:rgba(192,57,43,0.07);border-radius:8px;"></div>
+
+    <button class="form-submit" id="form-submit-btn" onclick="handleSubmit(this)">Request Access →</button>
+    <p class="form-note" id="form-note">Tri-State, South Florida & California beta. We're accepting a small number of members to start.<br>happy.golf</p>
   </div>
 </section>
 
@@ -1218,7 +1247,14 @@
   <div class="footer-copy">© 2025 Happy. Private network. Tri-State, South Florida & California Beta.</div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+  const { createClient } = supabase;
+  const _supabase = createClient(
+    'https://pjuyeldemhghpdnyiury.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqdXllbGRlbWhnaHBkbnlpdXJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4NTI2ODYsImV4cCI6MjA5MTQyODY4Nn0.MjuytngVKJL1d1RHuxPvm8QlCvF5C5qTB2qPoiCD420'
+  );
+
   // Hero fade-ins
   document.querySelectorAll('.hero .fade-up').forEach((el, i) => {
     setTimeout(() => el.classList.add('visible'), 80 + i * 90);
@@ -1237,14 +1273,61 @@
   document.querySelectorAll('.step, .why-item, .round-card, .form-wrap, .group-feature-card, .fade-up:not(.hero .fade-up)').forEach(el => observer.observe(el));
 
   // Form submit
-  function handleSubmit(btn) {
+  async function handleSubmit(btn) {
+    const name     = document.getElementById('field-name').value.trim();
+    const email    = document.getElementById('field-email').value.trim();
+    const phone    = document.getElementById('field-phone').value.trim();
+    const handicapRaw = document.getElementById('field-handicap').value.trim();
+    const pace     = document.querySelector('input[name="pace"]:checked')?.value || null;
+    const courses  = document.getElementById('field-courses').value.trim();
+    const industry = document.getElementById('field-industry').value.trim();
+    const job      = document.getElementById('field-job').value.trim();
+    const location = document.getElementById('field-location').value.trim();
+    const consent  = document.getElementById('field-consent').checked;
+    const noteEl   = document.getElementById('form-note');
+
+    // Validation
+    document.getElementById('form-error').style.display = 'none';
+    if (!name)  { showError('Please enter your name.'); return; }
+    if (!email || !email.includes('@')) { showError('Please enter a valid email address.'); return; }
+
+    btn.textContent = 'Submitting…';
+    btn.disabled = true;
+
+    const { error } = await _supabase.from('waitlist').insert({
+      name,
+      email,
+      phone:             phone    || null,
+      handicap:          handicapRaw ? parseFloat(handicapRaw) : null,
+      pace:              pace     || null,
+      courses:           courses  || null,
+      industry:          industry || null,
+      job:               job      || null,
+      location:          location || null,
+      marketing_consent: consent,
+      consent_timestamp: consent ? new Date().toISOString() : null,
+    });
+
+    if (error) {
+      btn.textContent = 'Request Access →';
+      btn.disabled = false;
+      showError(error.code === '23505'
+        ? "You're already on the list — we'll be in touch!"
+        : 'Something went wrong. Please try again.');
+      return;
+    }
+
     btn.textContent = '✓ You\'re on the list';
     btn.style.background = '#2E6045';
     btn.style.cursor = 'default';
-    btn.disabled = true;
-    const note = document.querySelector('.form-note');
-    note.innerHTML = "We'll be in touch soon. Welcome to Happy.<br>happy.golf";
-    note.style.color = '#2E6045';
+    noteEl.innerHTML = "We'll be in touch soon. Welcome to Happy.<br>happy.golf";
+    noteEl.style.color = '#2E6045';
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('form-error');
+    el.textContent = msg;
+    el.style.display = 'block';
   }
 </script>
 

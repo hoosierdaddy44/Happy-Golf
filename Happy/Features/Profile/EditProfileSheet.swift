@@ -13,6 +13,7 @@ struct EditProfileSheet: View {
     @State private var industry: String
     @State private var homeCourse: String
     @State private var pace: PacePref
+    @State private var instagramHandle: String
 
     @State private var pickerItem: PhotosPickerItem?
     @State private var avatarData: Data?
@@ -32,6 +33,7 @@ struct EditProfileSheet: View {
         _industry  = State(initialValue: user.industry)
         _homeCourse = State(initialValue: user.homeCourses.first ?? "")
         _pace      = State(initialValue: user.pacePreference)
+        _instagramHandle = State(initialValue: user.instagramHandle ?? "")
         if let data = user.avatarImageData, let ui = UIImage(data: data) {
             _avatarImage = State(initialValue: Image(uiImage: ui))
         }
@@ -180,6 +182,23 @@ struct EditProfileSheet: View {
                             }
                         }
 
+                        HappyDivider()
+
+                        // Instagram
+                        VStack(alignment: .leading, spacing: 4) {
+                            HappyTextField(
+                                label: "Instagram (Optional)",
+                                placeholder: "@yourusername",
+                                text: $instagramHandle
+                            )
+                            .autocorrectionDisabled()
+                            .textInputAutocapitalization(.never)
+                            Text("Shown on your Tour Card.")
+                                .font(HappyFont.metaTiny)
+                                .foregroundColor(.happyMuted)
+                                .padding(.leading, 2)
+                        }
+
                         if let errorMsg {
                             Text(errorMsg)
                                 .font(HappyFont.metaSmall)
@@ -227,7 +246,8 @@ struct EditProfileSheet: View {
                 industry: industry.trimmingCharacters(in: .whitespaces),
                 pace: pace,
                 homeCourse: homeCourse.trimmingCharacters(in: .whitespaces),
-                avatarData: avatarData
+                avatarData: avatarData,
+                instagramHandle: instagramHandle.trimmingCharacters(in: .whitespaces)
             )
             isSaving = false
             dismiss()

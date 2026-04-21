@@ -208,6 +208,24 @@ struct ProfileView: View {
                 // Accolades section
                 VStack(alignment: .leading, spacing: HappySpacing.sm) {
                     HappySectionLabel(text: "Tour Card")
+
+                    if let ig = user.instagramHandle, !ig.isEmpty {
+                        let handle = ig.hasPrefix("@") ? ig : "@\(ig)"
+                        if let url = URL(string: "https://instagram.com/\(ig.trimmingCharacters(in: .init(charactersIn: "@")))") {
+                            Link(destination: url) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "camera")
+                                        .font(.system(size: 12))
+                                        .foregroundColor(.happyMuted)
+                                    Text(handle)
+                                        .font(HappyFont.bodyMedium(size: 13))
+                                        .foregroundColor(.happyGreen)
+                                        .underline()
+                                }
+                            }
+                        }
+                    }
+
                     if myAccolades.isEmpty {
                         Text("Claim your first accolade.")
                             .font(HappyFont.bodyLight(size: 14))
