@@ -792,21 +792,16 @@ class AppState: ObservableObject {
 
     func sendFriendRequest(to userId: UUID) async {
         guard let me = currentUser else { return }
-        // Dev mode: add in-memory
-        if devUserId != nil {
-            let f = Friendship(id: UUID(), requesterId: me.id, addresseeId: userId, status: .pending, createdAt: Date())
-            friendships.append(f)
-            return
-        }
+        let optimistic = Friendship(id: UUID(), requesterId: me.id, addresseeId: userId, status: .pending, createdAt: Date())
+        friendships.append(optimistic)
+        if devUserId != nil { return }
         do {
-            let response = try await supabase
+            try await supabase
                 .from("friendships")
                 .insert(["requester_id": me.id.uuidString, "addressee_id": userId.uuidString])
-                .single()
                 .execute()
-            let row = try decoder.decode(FriendshipRow.self, from: response.data)
-            friendships.append(row.toFriendship())
         } catch {
+            friendships.removeAll { $0.id == optimistic.id }
             self.error = error.localizedDescription
         }
     }
@@ -921,21 +916,21 @@ class AppState: ObservableObject {
 
     func joinGroup(_ group: HappyGroup) async {
         guard let userId = currentUser?.id ?? devUserId else { return }
-        if devUserId != nil {
-            if let idx = groups.firstIndex(where: { $0.id == group.id }) {
-                groups[idx].myRole = .member
-                groups[idx].memberCount += 1
-            }
-            return
+        // Optimistic update
+        if let idx = groups.firstIndex(where: { $0.id == group.id }) {
+            groups[idx].myRole = .member
+            groups[idx].memberCount += 1
         }
+        if devUserId != nil { return }
         do {
             let body = GroupMemberInsert(groupId: group.id, userId: userId, role: "member")
             try await supabase.from("group_members").insert(body).execute()
-            if let idx = groups.firstIndex(where: { $0.id == group.id }) {
-                groups[idx].myRole = .member
-                groups[idx].memberCount += 1
-            }
         } catch {
+            // Rollback
+            if let idx = groups.firstIndex(where: { $0.id == group.id }) {
+                groups[idx].myRole = nil
+                groups[idx].memberCount = max(0, groups[idx].memberCount - 1)
+            }
             self.error = error.localizedDescription
         }
     }
