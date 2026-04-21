@@ -8,7 +8,7 @@ class AppState: ObservableObject {
     @Published var teeTimes: [TeeTime] = []
     @Published var joinRequests: [JoinRequest] = []
     @Published var activityEvents: [ActivityEvent] = []
-    @Published var isLoading: Bool = false
+    @Published var isLoading: Bool = true
     @Published var error: String?
     @Published var pendingRatingPrompts: [TeeTime] = []
     @Published var accolades: [UUID: [Accolade]] = [:]
@@ -76,6 +76,7 @@ class AppState: ObservableObject {
         currentUser = nil
         isOnboarded = false
         isApproved = false
+        isLoading = false
         didJustApply = false
         teeTimes = []
         joinRequests = []
@@ -122,7 +123,11 @@ class AppState: ObservableObject {
             let row = try JSONDecoder().decode(StatusRow.self, from: response.data)
             isApproved = row.status == "approved"
         } catch {
-            isApproved = false
+            let msg = error.localizedDescription
+            // Only mark not-approved for definitive "no row" responses, not network errors
+            if msg.contains("PGRST116") || msg.contains("JSON") || msg.contains("decode") {
+                isApproved = false
+            }
         }
     }
 
@@ -147,8 +152,13 @@ class AppState: ObservableObject {
             profileCache[userId] = user
             isOnboarded = true
         } catch {
-            // Profile doesn't exist yet — user needs onboarding
-            isOnboarded = false
+            let msg = error.localizedDescription
+            // PGRST116 = no rows returned — profile genuinely doesn't exist yet
+            if msg.contains("PGRST116") || msg.contains("JSON") || msg.contains("decode") {
+                isOnboarded = false
+            }
+            // Any other error (network, timeout, etc.) — don't reset onboarding state
+            // so existing users aren't bounced back to profile setup on a bad connection
         }
     }
 
